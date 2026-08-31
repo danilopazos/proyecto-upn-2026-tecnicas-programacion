@@ -1,1 +1,3 @@
-Primer commit
+## GRUPO 06 - UPN
+
+CURSO: TÉCNICAS DE PROGRAM.ORIE. OBJ. 
