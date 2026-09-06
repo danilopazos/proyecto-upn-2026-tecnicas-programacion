@@ -1,11 +1,15 @@
 import java.util.ArrayList;
 import java.util.Scanner;
 import modelo.Cliente;
+import modelo.HistorialClinico;
 
 public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
+        
         ArrayList<Cliente> listaClientes = new ArrayList<>();
+        ArrayList<HistorialClinico> listaHistoriales = new ArrayList<>();
+
         int opcion = 0;
 
         do {
@@ -15,7 +19,9 @@ public class Main {
             System.out.println("Elige una opción:");
             System.out.println("1 - Registrar un cliente");
             System.out.println("2 - Buscar un cliente");
-            System.out.println("3 - Salir");
+            System.out.println("3 - Registrar consulta clínica");
+            System.out.println("4 - Consultar historial clínico");
+            System.out.println("5 - Salir");
             System.out.print("\nIngresa una opción: ");
             
             opcion = scanner.nextInt();
@@ -63,8 +69,84 @@ public class Main {
                         System.out.println("No se encontró ningún cliente con ese DNI.\n");
                     }
                     break;
-
+                
                 case 3:
+                    System.out.println("\n--- REGISTRO DE CONSULTA CLÍNICA ---");
+
+                    System.out.print("ID de mascota: ");
+                    int idMascota = scanner.nextInt();
+                    scanner.nextLine();
+
+                    System.out.print("Fecha y hora: ");
+                    String fechaHora = scanner.nextLine();
+
+                    System.out.print("Motivo de consulta: ");
+                    String motivoConsulta = scanner.nextLine();
+
+                    System.out.print("Veterinario a cargo: ");
+                    String veterinario = scanner.nextLine();
+
+                    System.out.print("Diagnóstico: ");
+                    String diagnostico = scanner.nextLine();
+
+                    System.out.print("Tratamiento indicado: ");
+                    String tratamiento = scanner.nextLine();
+
+                    System.out.print("Peso al momento de la consulta (kg): ");
+                    double peso = scanner.nextDouble();
+                    scanner.nextLine();
+
+                    System.out.print("Temperatura (°C): ");
+                    double temperatura = scanner.nextDouble();
+                    scanner.nextLine();
+
+                    System.out.print("Observaciones: ");
+                    String observaciones = scanner.nextLine();
+
+                    System.out.print("Próxima cita sugerida: ");
+                    String proximaCita = scanner.nextLine();
+
+                    HistorialClinico nuevaConsulta = new HistorialClinico(
+                        idMascota,
+                        fechaHora,
+                        motivoConsulta,
+                        veterinario,
+                        diagnostico,
+                        tratamiento,
+                        peso,
+                        temperatura,
+                        observaciones,
+                        proximaCita
+                    );
+
+                    listaHistoriales.add(nuevaConsulta);
+
+                    System.out.println("¡Consulta registrada con éxito!\n");
+                    break; 
+                
+                case 4:
+                    System.out.println("\n--- CONSULTAR HISTORIAL CLÍNICO ---");
+
+                    System.out.print("Ingresa el ID de mascota: ");
+                    int idMascotaBuscar = scanner.nextInt();
+                    scanner.nextLine();
+
+                    boolean consultaEncontrada = false;
+
+                    for (HistorialClinico h : listaHistoriales) {
+                        if (h.getIdMascota() == idMascotaBuscar) {
+                            h.mostrarDatos();
+                            consultaEncontrada = true;
+                        }
+                    }
+
+                    if (!consultaEncontrada) {
+                        System.out.println("No se encontraron consultas para esa mascota.\n");
+                    }
+
+                    break;
+
+                case 5:
                     System.out.println("Saliendo del sistema...");
                     break;
 
@@ -72,7 +154,7 @@ public class Main {
                     System.out.println("Opción inválida. Intenta de nuevo.\n");
             }
 
-        } while (opcion != 3);
+        } while (opcion != 5);
 
         scanner.close();
     }
