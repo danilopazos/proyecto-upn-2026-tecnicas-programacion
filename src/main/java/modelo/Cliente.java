@@ -47,6 +47,10 @@ public class Cliente {
     public static boolean esDniValido(String dni) {
         return dni != null && dni.matches("\\d{8}");
     }
+    
+    public static boolean esTelefonoValido(String telefono) {
+    return telefono != null && telefono.matches("\\d{9}");
+}
 
     /**
      * Verifica si ya existe un cliente registrado con el DNI indicado.
