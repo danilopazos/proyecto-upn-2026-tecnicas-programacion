@@ -53,8 +53,16 @@ public class Main {
                             }
                         } while (!Cliente.esNombreValido(nombre));
 
-                        System.out.print("Teléfono: ");
-                        String telefono = scanner.nextLine();
+                       
+                        String telefono;
+                        do{
+                             System.out.print("Teléfono (9 dígitos): ");
+                             telefono = scanner.nextLine();
+                             if (!Cliente.esTelefonoValido(telefono)) {
+                                 System.out.println("[ERROR] El teléfono debe tener exactamente 9 dígitos numéricos.");
+                             }
+                        } while (!Cliente.esTelefonoValido(telefono));
+                            
                         System.out.print("Email: ");
                         String email = scanner.nextLine();
                         System.out.print("Dirección: ");
