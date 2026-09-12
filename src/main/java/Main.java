@@ -1,3 +1,4 @@
+
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -5,14 +6,17 @@ import modelo.Cita;
 import modelo.Cliente;
 import modelo.Consulta;
 import modelo.Mascota;
+import modelo.Personal;
 
 public class Main {
+
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         ArrayList<Cliente> listaClientes = new ArrayList<>();
         ArrayList<Mascota> listaMascotas = new ArrayList<>();
         ArrayList<Cita> listaCitas = new ArrayList<>();
         ArrayList<Consulta> listaConsultas = new ArrayList<>();
+        ArrayList<Personal> listaPersonal = new ArrayList<>();
         int opcion = 0;
 
         do {
@@ -26,7 +30,9 @@ public class Main {
             System.out.println("5 - Registrar una cita");
             System.out.println("6 - Gestionar una cita (confirmar/cancelar/completar)");
             System.out.println("7 - Ver historial clínico de una mascota");
-            System.out.println("8 - Salir");
+            System.out.println("8 - Registrar personal");
+            System.out.println("9 - Buscar personal");
+            System.out.println("10 - Salir");
             System.out.print("\nIngresa una opción: ");
 
             // Try catch para controlar errores
@@ -226,11 +232,20 @@ public class Main {
                             System.out.print("Elige una opción: ");
                             String tipoOpcion = scanner.nextLine();
                             switch (tipoOpcion) {
-                                case "1": tipoCita = "Consulta"; break;
-                                case "2": tipoCita = "Control"; break;
-                                case "3": tipoCita = "Cirugía"; break;
-                                case "4": tipoCita = "Vacuna"; break;
-                                default: System.out.println("[ERROR] Opción inválida.");
+                                case "1":
+                                    tipoCita = "Consulta";
+                                    break;
+                                case "2":
+                                    tipoCita = "Control";
+                                    break;
+                                case "3":
+                                    tipoCita = "Cirugía";
+                                    break;
+                                case "4":
+                                    tipoCita = "Vacuna";
+                                    break;
+                                default:
+                                    System.out.println("[ERROR] Opción inválida.");
                             }
                         }
 
@@ -408,12 +423,73 @@ public class Main {
                         break;
                     }
 
-                    case 8:
+                    case 8: {
+                        System.out.println("\n--- REGISTRO DE PERSONAL ---");
+
+                        String nombrePersonal;
+                        do {
+                            System.out.print("Nombre completo: ");
+                            nombrePersonal = scanner.nextLine();
+                            if (!Personal.esNombreValido(nombrePersonal)) {
+                                System.out.println("[ERROR] El nombre no puede estar vacío.");
+                            }
+                        } while (!Personal.esNombreValido(nombrePersonal));
+
+                        System.out.print("Horario de atención (Ej: Lunes a Viernes 8:00 am - 5:00 pm): ");
+                        String horarioPersonal = scanner.nextLine();
+
+                        String rolPersonal = null;
+                        while (rolPersonal == null) {
+                            System.out.println("Rol: 1-Veterinario  2-Asistente veterinario  3-Recepcionista");
+                            System.out.print("Elige una opción: ");
+                            String rolOpcion = scanner.nextLine();
+                            switch (rolOpcion) {
+                                case "1":
+                                    rolPersonal = Personal.ROL_VETERINARIO;
+                                    break;
+                                case "2":
+                                    rolPersonal = Personal.ROL_ASISTENTE;
+                                    break;
+                                case "3":
+                                    rolPersonal = Personal.ROL_RECEPCIONISTA;
+                                    break;
+                                default:
+                                    System.out.println("[ERROR] Opción inválida.");
+                            }
+                        }
+
+                        Personal nuevoPersonal = new Personal(nombrePersonal, horarioPersonal, rolPersonal);
+                        listaPersonal.add(nuevoPersonal);
+
+                        System.out.println("¡Empleado registrado con éxito! (ID asignado: " + nuevoPersonal.getIdEmpleado() + ")\n");
+                        break;
+                    }
+
+                    case 9: {
+                        System.out.println("\n--- BUSCAR PERSONAL ---");
+                        System.out.print("Ingresa el ID del empleado a buscar: ");
+                        String idPersonalTexto = scanner.nextLine();
+
+                        if (!Personal.esIdNumerico(idPersonalTexto)) {
+                            System.out.println("[ERROR] El ID debe contener solo números.\n");
+                            break;
+                        }
+
+                        Personal personalBuscado = Personal.buscarPorId(listaPersonal, Integer.parseInt(idPersonalTexto));
+                        if (personalBuscado != null) {
+                            personalBuscado.mostrarDatos();
+                        } else {
+                            System.out.println("No se encontró ningún empleado con ese ID.\n");
+                        }
+                        break;
+                    }
+
+                    case 10:
                         System.out.println("Saliendo del sistema...");
                         break;
 
                     default:
-                        System.out.println("Opción inválida. Elige un número entre 1 y 8.\n");
+                        System.out.println("Opción inválida. Elige un número entre 1 y 10.\n");
                 }
 
             } catch (InputMismatchException e) {
