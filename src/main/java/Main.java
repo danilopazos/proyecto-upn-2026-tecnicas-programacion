@@ -5,6 +5,7 @@ import java.util.Scanner;
 import modelo.Cita;
 import modelo.Cliente;
 import modelo.Consulta;
+import modelo.Facturacion;
 import modelo.Mascota;
 import modelo.Personal;
 
@@ -17,6 +18,7 @@ public class Main {
         ArrayList<Cita> listaCitas = new ArrayList<>();
         ArrayList<Consulta> listaConsultas = new ArrayList<>();
         ArrayList<Personal> listaPersonal = new ArrayList<>();
+        ArrayList<Facturacion> listaFacturas = new ArrayList<>();
         int opcion = -1;
 
         do {
@@ -32,6 +34,8 @@ public class Main {
             System.out.println("7 - Ver historial clínico de una mascota");
             System.out.println("8 - Registrar personal");
             System.out.println("9 - Buscar personal");
+            System.out.println("10 - Registrar una factura");
+            System.out.println("11 - Ver facturas de un cliente");
             System.out.println("0 - Salir");
             System.out.print("\nIngresa una opción: ");
 
@@ -53,16 +57,15 @@ public class Main {
                             }
                         } while (!Cliente.esNombreValido(nombre));
 
-                       
                         String telefono;
-                        do{
-                             System.out.print("Teléfono (9 dígitos): ");
-                             telefono = scanner.nextLine();
-                             if (!Cliente.esTelefonoValido(telefono)) {
-                                 System.out.println("[ERROR] El teléfono debe tener exactamente 9 dígitos numéricos.");
-                             }
+                        do {
+                            System.out.print("Teléfono (9 dígitos): ");
+                            telefono = scanner.nextLine();
+                            if (!Cliente.esTelefonoValido(telefono)) {
+                                System.out.println("[ERROR] El teléfono debe tener exactamente 9 dígitos numéricos.");
+                            }
                         } while (!Cliente.esTelefonoValido(telefono));
-                            
+
                         System.out.print("Email: ");
                         String email = scanner.nextLine();
                         System.out.print("Dirección: ");
@@ -509,12 +512,145 @@ public class Main {
                         break;
                     }
 
+                    case 10: {
+                        System.out.println("\n--- REGISTRAR FACTURA ---");
+
+                        if (listaConsultas.isEmpty()) {
+                            System.out.println("[ERROR] No hay consultas registradas. Registra una consulta antes de emitir una factura.\n");
+                            pausar(scanner);
+                            break;
+                        }
+
+                        int idConsultaFactura = -1;
+                        Consulta consultaFacturada = null;
+                        do {
+                            System.out.print("ID de la consulta a facturar: ");
+                            String idConsultaTexto = scanner.nextLine();
+                            if (!Facturacion.esIdNumerico(idConsultaTexto)) {
+                                System.out.println("[ERROR] El ID de la consulta debe contener solo números.");
+                                continue;
+                            }
+                            idConsultaFactura = Integer.parseInt(idConsultaTexto);
+                            for (Consulta c : listaConsultas) {
+                                if (c.getIdConsulta() == idConsultaFactura) {
+                                    consultaFacturada = c;
+                                    break;
+                                }
+                            }
+                            if (consultaFacturada == null) {
+                                System.out.println("[ERROR] No existe ninguna consulta con ese ID.");
+                            }
+                        } while (consultaFacturada == null);
+
+                        int idMascotaFactura = consultaFacturada.getIdMascota();
+                        Mascota mascotaFactura = Mascota.buscarPorId(listaMascotas, idMascotaFactura);
+                        int idClienteFactura = -1;
+                        boolean idClienteEncontrado = false;
+                        if (mascotaFactura != null) {
+                            idClienteFactura = mascotaFactura.getIdCliente();
+                            idClienteEncontrado = Cliente.existeId(listaClientes, idClienteFactura);
+                        }
+
+                        if (!idClienteEncontrado) {
+                            System.out.println("[ERROR] No se pudo determinar un cliente válido a partir de la consulta seleccionada.\n");
+                            pausar(scanner);
+                            break;
+                        }
+
+                        System.out.print("Fecha de la factura (Ej: 15/09/2026): ");
+                        String fechaFactura = scanner.nextLine();
+
+                        double montoFactura = -1;
+                        boolean montoValido = false;
+                        do {
+                            System.out.print("Monto (S/): ");
+                            String montoTexto = scanner.nextLine();
+                            try {
+                                montoFactura = Double.parseDouble(montoTexto);
+                                montoValido = Facturacion.esMontoValido(montoFactura);
+                                if (!montoValido) {
+                                    System.out.println("[ERROR] El monto debe ser un número mayor que 0.");
+                                }
+                            } catch (NumberFormatException e) {
+                                System.out.println("[ERROR] Ingresa un monto válido (ej: 80.00).");
+                            }
+                        } while (!montoValido);
+
+                        String metodoPagoFactura = null;
+                        while (metodoPagoFactura == null) {
+                            System.out.println("Método de pago: 1-Efectivo  2-Tarjeta  3-Yape/Plin  4-Transferencia");
+                            System.out.print("Elige una opción: ");
+                            String metodoOpcion = scanner.nextLine();
+                            switch (metodoOpcion) {
+                                case "1":
+                                    metodoPagoFactura = Facturacion.PAGO_EFECTIVO;
+                                    break;
+                                case "2":
+                                    metodoPagoFactura = Facturacion.PAGO_TARJETA;
+                                    break;
+                                case "3":
+                                    metodoPagoFactura = Facturacion.PAGO_YAPE_PLIN;
+                                    break;
+                                case "4":
+                                    metodoPagoFactura = Facturacion.PAGO_TRANSFERENCIA;
+                                    break;
+                                default:
+                                    System.out.println("[ERROR] Opción inválida.");
+                            }
+                        }
+
+                        Facturacion nuevaFactura = new Facturacion(idClienteFactura, idConsultaFactura, fechaFactura,
+                                montoFactura, metodoPagoFactura);
+                        listaFacturas.add(nuevaFactura);
+
+                        System.out.println("¡Factura registrada con éxito! (ID asignado: " + nuevaFactura.getIdFactura() + ")\n");
+                        pausar(scanner);
+                        break;
+                    }
+
+                    case 11: {
+                        System.out.println("\n--- FACTURAS DE UN CLIENTE ---");
+
+                        if (listaClientes.isEmpty()) {
+                            System.out.println("[ERROR] No hay clientes registrados.\n");
+                            pausar(scanner);
+                            break;
+                        }
+
+                        int idClienteBuscar = -1;
+                        boolean idClienteValido = false;
+                        do {
+                            System.out.print("ID del cliente: ");
+                            String idClienteTexto = scanner.nextLine();
+                            if (!Facturacion.esIdNumerico(idClienteTexto)) {
+                                System.out.println("[ERROR] El ID del cliente debe contener solo números.");
+                                continue;
+                            }
+                            idClienteBuscar = Integer.parseInt(idClienteTexto);
+                            idClienteValido = Cliente.existeId(listaClientes, idClienteBuscar);
+                            if (!idClienteValido) {
+                                System.out.println("[ERROR] No existe ningún cliente con ese ID.");
+                            }
+                        } while (!idClienteValido);
+
+                        ArrayList<Facturacion> facturasCliente = Facturacion.buscarPorCliente(listaFacturas, idClienteBuscar);
+                        if (facturasCliente.isEmpty()) {
+                            System.out.println("Este cliente no tiene facturas registradas.\n");
+                        } else {
+                            for (Facturacion f : facturasCliente) {
+                                f.mostrarDatos();
+                            }
+                        }
+                        pausar(scanner);
+                        break;
+                    }
+
                     case 0:
                         System.out.println("Saliendo del sistema...");
                         break;
 
                     default:
-                        System.out.println("Opción inválida. Elige un número entre 0 y 9.\n");
+                        System.out.println("Opción inválida. Elige un número entre 0 y 11.\n");
                         pausar(scanner);
                 }
 
