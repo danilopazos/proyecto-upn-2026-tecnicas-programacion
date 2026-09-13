@@ -113,5 +113,13 @@ public class Personal {
         System.out.println("Rol: " + rol);
         System.out.println("---------------------------\n");
     }
-    
+
+    public void mostrarDatos(boolean resumen) {
+        if (!resumen) {
+            mostrarDatos();
+            return;
+        }
+        System.out.println("Empleado #" + idEmpleado + " | " + nombre + " | Rol: " + rol);
+    }
+
 }

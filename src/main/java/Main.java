@@ -17,7 +17,7 @@ public class Main {
         ArrayList<Cita> listaCitas = new ArrayList<>();
         ArrayList<Consulta> listaConsultas = new ArrayList<>();
         ArrayList<Personal> listaPersonal = new ArrayList<>();
-        int opcion = 0;
+        int opcion = -1;
 
         do {
             System.out.println("BIENVENIDO AL SISTEMA DE VETERINARIA");
@@ -32,7 +32,7 @@ public class Main {
             System.out.println("7 - Ver historial clínico de una mascota");
             System.out.println("8 - Registrar personal");
             System.out.println("9 - Buscar personal");
-            System.out.println("10 - Salir");
+            System.out.println("0 - Salir");
             System.out.print("\nIngresa una opción: ");
 
             // Try catch para controlar errores
@@ -86,6 +86,7 @@ public class Main {
                         listaClientes.add(nuevoCliente);
 
                         System.out.println("¡Cliente registrado con éxito! (ID asignado: " + nuevoCliente.getIdCliente() + ")\n");
+                        pausar(scanner);
                         break;
                     }
 
@@ -106,6 +107,7 @@ public class Main {
                         if (!encontrado) {
                             System.out.println("No se encontró ningún cliente con ese DNI.\n");
                         }
+                        pausar(scanner);
                         break;
                     }
 
@@ -114,6 +116,7 @@ public class Main {
 
                         if (listaClientes.isEmpty()) {
                             System.out.println("[ERROR] No hay clientes registrados. Registra un cliente antes de registrar una mascota.\n");
+                            pausar(scanner);
                             break;
                         }
 
@@ -176,6 +179,7 @@ public class Main {
                         listaMascotas.add(nuevaMascota);
 
                         System.out.println("¡Mascota registrada con éxito! (ID asignado: " + nuevaMascota.getIdMascota() + ")\n");
+                        pausar(scanner);
                         break;
                     }
 
@@ -186,6 +190,7 @@ public class Main {
 
                         if (!Mascota.esIdNumerico(idMascotaTexto)) {
                             System.out.println("[ERROR] El ID debe contener solo números.\n");
+                            pausar(scanner);
                             break;
                         }
 
@@ -195,6 +200,7 @@ public class Main {
                         } else {
                             System.out.println("No se encontró ninguna mascota con ese ID.\n");
                         }
+                        pausar(scanner);
                         break;
                     }
 
@@ -203,6 +209,7 @@ public class Main {
 
                         if (listaMascotas.isEmpty()) {
                             System.out.println("[ERROR] No hay mascotas registradas. Registra una mascota antes de agendar una cita.\n");
+                            pausar(scanner);
                             break;
                         }
 
@@ -262,6 +269,7 @@ public class Main {
 
                         System.out.println("¡Cita registrada con éxito! (ID asignado: " + nuevaCita.getIdCita()
                                 + ", estado: " + nuevaCita.getEstado() + ")\n");
+                        pausar(scanner);
                         break;
                     }
 
@@ -270,6 +278,7 @@ public class Main {
 
                         if (listaCitas.isEmpty()) {
                             System.out.println("[ERROR] No hay citas registradas.\n");
+                            pausar(scanner);
                             break;
                         }
 
@@ -387,7 +396,9 @@ public class Main {
                                     // del historial de peso de la mascota.
                                     Mascota mascotaAtendida = Mascota.buscarPorId(listaMascotas, citaGestion.getIdMascota());
                                     if (mascotaAtendida != null) {
-                                        mascotaAtendida.registrarControlPeso(pesoConsulta);
+                                        // Se usa la sobrecarga con fecha para dejar registrada
+                                        // la fecha/hora de la cita junto con el peso tomado.
+                                        mascotaAtendida.registrarControlPeso(pesoConsulta, citaGestion.getFechaHora());
                                     }
 
                                     citaGestion.completar();
@@ -403,6 +414,7 @@ public class Main {
                         } catch (IllegalStateException e) {
                             System.out.println("[ERROR] " + e.getMessage() + "\n");
                         }
+                        pausar(scanner);
                         break;
                     }
 
@@ -413,6 +425,7 @@ public class Main {
 
                         if (!Mascota.esIdNumerico(idMascotaHistTexto)) {
                             System.out.println("[ERROR] El ID debe contener solo números.\n");
+                            pausar(scanner);
                             break;
                         }
 
@@ -428,6 +441,7 @@ public class Main {
                         if (!tieneConsultas) {
                             System.out.println("Esta mascota no tiene consultas registradas en su historial.\n");
                         }
+                        pausar(scanner);
                         break;
                     }
 
@@ -470,6 +484,7 @@ public class Main {
                         listaPersonal.add(nuevoPersonal);
 
                         System.out.println("¡Empleado registrado con éxito! (ID asignado: " + nuevoPersonal.getIdEmpleado() + ")\n");
+                        pausar(scanner);
                         break;
                     }
 
@@ -480,6 +495,7 @@ public class Main {
 
                         if (!Personal.esIdNumerico(idPersonalTexto)) {
                             System.out.println("[ERROR] El ID debe contener solo números.\n");
+                            pausar(scanner);
                             break;
                         }
 
@@ -489,27 +505,36 @@ public class Main {
                         } else {
                             System.out.println("No se encontró ningún empleado con ese ID.\n");
                         }
+                        pausar(scanner);
                         break;
                     }
 
-                    case 10:
+                    case 0:
                         System.out.println("Saliendo del sistema...");
                         break;
 
                     default:
-                        System.out.println("Opción inválida. Elige un número entre 1 y 10.\n");
+                        System.out.println("Opción inválida. Elige un número entre 0 y 9.\n");
+                        pausar(scanner);
                 }
 
             } catch (InputMismatchException e) {
                 System.out.println("\n[ERROR] Debes ingresar un número válido, no letras.\n");
                 scanner.nextLine(); // Limpiar la entrada errónea del scanner para que no entre en bucle
-                opcion = 0; // Reiniciamos la opción para que el ciclo continúe
+                opcion = -1; // Reiniciamos la opción (valor que no coincide con ningún caso) para que el ciclo continúe
+                pausar(scanner);
             } catch (Exception e) {
                 System.out.println("\n[ERROR INESPERADO]: " + e.getMessage() + "\n");
+                pausar(scanner);
             }
 
-        } while (opcion != 8);
+        } while (opcion != 0);
 
         scanner.close();
+    }
+
+    private static void pausar(Scanner scanner) {
+        System.out.print("\nPresione ENTER para volver al menú principal...");
+        scanner.nextLine();
     }
 }

@@ -14,7 +14,6 @@ public class Cliente {
     private String dni;
     private String fechaRegistro;
 
-    // Constructor (ya no recibe el ID por parámetro, se autoasigna)
     public Cliente(String nombreCompleto, String telefono, String email, String direccion, String dni, String fechaRegistro) {
         if (!esNombreValido(nombreCompleto)) {
             throw new IllegalArgumentException("El nombre no puede estar vacío.");
@@ -42,7 +41,7 @@ public class Cliente {
     }
 
     /**
-     * Un DNI es válido si tiene exactamente 8 caracteres y todos son dígitos numéricos.
+     * Un DNI es válido si tiene exactamente 8 caracteres.
      */
     public static boolean esDniValido(String dni) {
         return dni != null && dni.matches("\\d{8}");
@@ -96,5 +95,14 @@ public class Cliente {
         System.out.println("DNI: " + dni);
         System.out.println("Fecha de Registro: " + fechaRegistro);
         System.out.println("-------------------------\n");
+    }
+
+    public void mostrarDatos(boolean resumen) {
+        if (!resumen) {
+            mostrarDatos();
+            return;
+        }
+        System.out.println("Cliente #" + idCliente + " | " + nombreCompleto
+                + " | DNI: " + dni + " | Tel: " + telefono);
     }
 }
