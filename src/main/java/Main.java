@@ -51,30 +51,43 @@ public class Main {
                         String nombre;
                         do {
                             System.out.print("Nombre completo: ");
-                            nombre = scanner.nextLine();
+                            nombre = scanner.nextLine().trim();
                             if (!Cliente.esNombreValido(nombre)) {
-                                System.out.println("[ERROR] El nombre no puede estar vacío.");
+                                System.out.println("[ERROR] El nombre debe contener letras y puede incluir espacios, guiones o apóstrofos.");
                             }
                         } while (!Cliente.esNombreValido(nombre));
 
                         String telefono;
-                        do {
-                            System.out.print("Teléfono (9 dígitos): ");
-                            telefono = scanner.nextLine();
-                            if (!Cliente.esTelefonoValido(telefono)) {
-                                System.out.println("[ERROR] El teléfono debe tener exactamente 9 dígitos numéricos.");
-                            }
+                        do{
+                             System.out.print("Teléfono (9 dígitos): ");
+                             telefono = scanner.nextLine().trim();
+                             if (!Cliente.esTelefonoValido(telefono)) {
+                                 System.out.println("[ERROR] El teléfono debe tener exactamente 9 dígitos numéricos.");
+                             }
                         } while (!Cliente.esTelefonoValido(telefono));
+                            
+                        String email;
+                        do {
+                            System.out.print("Email (Ej: nombre@dominio.com): ");
+                            email = scanner.nextLine().trim();
+                            if (!Cliente.esEmailValido(email)) {
+                                System.out.println("[ERROR] Ingresa un correo válido (Ej: nombre@dominio.com).");
+                            }
+                        } while (!Cliente.esEmailValido(email));
 
-                        System.out.print("Email: ");
-                        String email = scanner.nextLine();
-                        System.out.print("Dirección: ");
-                        String direccion = scanner.nextLine();
+                        String direccion;
+                        do {
+                            System.out.print("Dirección: ");
+                            direccion = scanner.nextLine().trim();
+                            if (!Cliente.esDireccionValida(direccion)) {
+                                System.out.println("[ERROR] La dirección no puede estar vacía.");
+                            }
+                        } while (!Cliente.esDireccionValida(direccion));
 
                         String dni;
                         do {
                             System.out.print("DNI (8 dígitos numéricos): ");
-                            dni = scanner.nextLine();
+                            dni = scanner.nextLine().trim();
                             if (!Cliente.esDniValido(dni)) {
                                 System.out.println("[ERROR] El DNI debe tener exactamente 8 dígitos numéricos.");
                             } else if (Cliente.existeDni(listaClientes, dni)) {
@@ -82,8 +95,14 @@ public class Main {
                             }
                         } while (!Cliente.esDniValido(dni) || Cliente.existeDni(listaClientes, dni));
 
-                        System.out.print("Fecha de registro (Ej: 30/08/2026): ");
-                        String fecha = scanner.nextLine();
+                        String fecha;
+                        do {
+                            System.out.print("Fecha de registro (dd/MM/aaaa, Ej: 30/08/2026): ");
+                            fecha = scanner.nextLine().trim();
+                            if (!Cliente.esFechaRegistroValida(fecha)) {
+                                System.out.println("[ERROR] Ingresa una fecha real en formato dd/MM/aaaa.");
+                            }
+                        } while (!Cliente.esFechaRegistroValida(fecha));
 
                         Cliente nuevoCliente = new Cliente(nombre, telefono, email, direccion, dni, fecha);
                         listaClientes.add(nuevoCliente);
@@ -95,8 +114,14 @@ public class Main {
 
                     case 2: {
                         System.out.println("\n--- BUSCAR CLIENTE ---");
-                        System.out.print("Ingresa el DNI a buscar: ");
-                        String dniBuscar = scanner.nextLine();
+                        String dniBuscar;
+                        do {
+                            System.out.print("Ingresa el DNI a buscar (8 dígitos): ");
+                            dniBuscar = scanner.nextLine().trim();
+                            if (!Cliente.esDniValido(dniBuscar)) {
+                                System.out.println("[ERROR] El DNI debe tener exactamente 8 dígitos numéricos.");
+                            }
+                        } while (!Cliente.esDniValido(dniBuscar));
 
                         boolean encontrado = false;
                         for (Cliente c : listaClientes) {
