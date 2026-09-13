@@ -67,4 +67,13 @@ public class Consulta {
         System.out.println("Próxima cita sugerida: " + proximaCitaSugerida);
         System.out.println("------------------------------------\n");
     }
+
+    public void mostrarDatos(boolean resumen) {
+        if (!resumen) {
+            mostrarDatos();
+            return;
+        }
+        System.out.println("Consulta #" + idConsulta + " | Mascota ID: " + idMascota
+                + " | " + fechaHora + " | Diagnóstico: " + diagnostico);
+    }
 }

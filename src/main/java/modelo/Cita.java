@@ -103,4 +103,16 @@ public class Cita {
         System.out.println("Estado: " + estado);
         System.out.println("------------------------\n");
     }
+
+
+     //Sobrecarga de mostrarDatos: si resumen es false, muestra el detalle si es true, muestra una sola
+
+    public void mostrarDatos(boolean resumen) {
+        if (!resumen) {
+            mostrarDatos();
+            return;
+        }
+        System.out.println("Cita #" + idCita + " | Mascota ID: " + idMascota
+                + " | " + fechaHora + " | " + tipo + " | Estado: " + estado);
+    }
 }

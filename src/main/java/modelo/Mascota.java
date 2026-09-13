@@ -14,6 +14,7 @@ public class Mascota {
     private String fechaNacimiento;
     private String sexo;
     private ArrayList<Double> historialPeso; // Peso histórico: se agrega un valor nuevo en cada control
+    private ArrayList<String> fechasHistorialPeso; // Fecha asociada a cada peso (paralelo a historialPeso)
     private boolean esterilizado;
 
     public Mascota(int idCliente, String nombre, String especie, String raza,
@@ -31,6 +32,8 @@ public class Mascota {
         this.sexo = sexo;
         this.historialPeso = new ArrayList<>();
         this.historialPeso.add(pesoInicial);
+        this.fechasHistorialPeso = new ArrayList<>();
+        this.fechasHistorialPeso.add("Registro inicial");
         this.esterilizado = esterilizado;
     }
 
@@ -52,11 +55,15 @@ public class Mascota {
 
     // --- Peso histórico ---
 
-    /**
-     * Registra un nuevo peso (ej. luego de un control veterinario) sin perder el historial anterior.
-     */
     public void registrarControlPeso(double nuevoPeso) {
+        registrarControlPeso(nuevoPeso, null);
+    }
+
+    public void registrarControlPeso(double nuevoPeso, String fecha) {
         historialPeso.add(nuevoPeso);
+        fechasHistorialPeso.add(
+                (fecha == null || fecha.trim().isEmpty()) ? "Sin fecha registrada" : fecha
+        );
     }
 
     public double getPesoActual() {
@@ -65,6 +72,10 @@ public class Mascota {
 
     public ArrayList<Double> getHistorialPeso() {
         return historialPeso;
+    }
+
+    public ArrayList<String> getFechasHistorialPeso() {
+        return fechasHistorialPeso;
     }
 
     // --- Búsqueda ---
@@ -98,8 +109,21 @@ public class Mascota {
         System.out.println("Fecha de Nacimiento: " + fechaNacimiento);
         System.out.println("Sexo: " + sexo);
         System.out.println("Peso actual: " + getPesoActual() + " kg");
-        System.out.println("Historial de peso: " + historialPeso);
+        System.out.println("Historial de peso:");
+        for (int i = 0; i < historialPeso.size(); i++) {
+            String fecha = i < fechasHistorialPeso.size() ? fechasHistorialPeso.get(i) : "Sin fecha registrada";
+            System.out.println("  - " + historialPeso.get(i) + " kg (" + fecha + ")");
+        }
         System.out.println("Esterilizado: " + (esterilizado ? "Sí" : "No"));
         System.out.println("---------------------------\n");
+    }
+
+    public void mostrarDatos(boolean resumen) {
+        if (!resumen) {
+            mostrarDatos();
+            return;
+        }
+        System.out.println("Mascota #" + idMascota + " | " + nombre + " (" + especie
+                + ") | Dueño ID: " + idCliente + " | Peso actual: " + getPesoActual() + " kg");
     }
 }
