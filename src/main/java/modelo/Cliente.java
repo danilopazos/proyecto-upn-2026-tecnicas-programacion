@@ -1,6 +1,10 @@
 package modelo;
 
 import java.util.ArrayList;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 
 public class Cliente {
     // Variable estática para llevar la cuenta global de clientes creados
@@ -16,10 +20,23 @@ public class Cliente {
 
     public Cliente(String nombreCompleto, String telefono, String email, String direccion, String dni, String fechaRegistro) {
         if (!esNombreValido(nombreCompleto)) {
-            throw new IllegalArgumentException("El nombre no puede estar vacío.");
+            throw new IllegalArgumentException("El nombre debe contener letras y puede incluir espacios, guiones o apóstrofos.");
         }
         if (!esDniValido(dni)) {
             throw new IllegalArgumentException("El DNI debe tener exactamente 8 dígitos numéricos.");
+        }
+
+        if (!esTelefonoValido(telefono)) {
+            throw new IllegalArgumentException("El teléfono debe tener exactamente 9 dígitos numéricos.");
+        }
+        if (!esEmailValido(email)) {
+            throw new IllegalArgumentException("Ingresa un correo válido (Ej: nombre@dominio.com).");
+        }
+        if (!esDireccionValida(direccion)) {
+            throw new IllegalArgumentException("La dirección no puede estar vacía.");
+        }
+        if (!esFechaRegistroValida(fechaRegistro)) {
+            throw new IllegalArgumentException("Ingresa una fecha real en formato dd/MM/aaaa.");
         }
 
         this.idCliente = contadorId++; // Asigna el número actual y luego suma 1 para el siguiente
@@ -34,22 +51,46 @@ public class Cliente {
     // --- Validaciones ---
 
     /**
-     * Un nombre es válido si no es null y no está vacío (ni compuesto solo de espacios).
+     * Acepta letras Unicode (incluye tildes y ñ), espacios, guiones y apóstrofos.
      */
     public static boolean esNombreValido(String nombre) {
-        return nombre != null && !nombre.trim().isEmpty();
+        return nombre != null && nombre.trim().matches("[\\p{L}\\p{M}]+(?:[ '\u2019-][\\p{L}\\p{M}]+)*");
     }
 
     /**
-     * Un DNI es válido si tiene exactamente 8 caracteres.
+     * Un DNI es válido si tiene exactamente 8 dígitos numéricos.
      */
     public static boolean esDniValido(String dni) {
         return dni != null && dni.matches("\\d{8}");
     }
     
     public static boolean esTelefonoValido(String telefono) {
-    return telefono != null && telefono.matches("\\d{9}");
-}
+        return telefono != null && telefono.matches("\\d{9}");
+    }
+
+    /** Valida el formato habitual de correo: usuario@dominio.extensión. */
+    public static boolean esEmailValido(String email) {
+        return email != null
+                && email.matches("[A-Za-z0-9_+%'-]+(?:[.][A-Za-z0-9_+%'-]+)*@[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*(?:[.][A-Za-z0-9]+(?:-[A-Za-z0-9]+)*)*[.][A-Za-z]{2,}");
+    }
+
+    public static boolean esDireccionValida(String direccion) {
+        return direccion != null && !direccion.trim().isEmpty();
+    }
+
+    /** Rechaza fechas imposibles, incluso días inválidos en años no bisiestos. */
+    public static boolean esFechaRegistroValida(String fecha) {
+        if (fecha == null || !fecha.matches("[0-9]{2}/[0-9]{2}/[0-9]{4}")) {
+            return false;
+        }
+        try {
+            LocalDate fechaRegistro = LocalDate.parse(fecha,
+                    DateTimeFormatter.ofPattern("dd/MM/uuuu").withResolverStyle(ResolverStyle.STRICT));
+            return fechaRegistro.getYear() > 0;
+        } catch (DateTimeParseException e) {
+            return false;
+        }
+    }
 
     /**
      * Verifica si ya existe un cliente registrado con el DNI indicado.
