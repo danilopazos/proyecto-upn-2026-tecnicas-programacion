@@ -40,16 +40,14 @@ public class Mascota {
 
     // --- Validaciones ---
     /**
-     * Un nombre es válido si no es null y no está vacío (ni compuesto solo de
-     * espacios).
+     * Un nombre es válido si no es null y no está vacío (ni compuesto solo de espacios).
      */
     public static boolean esNombreValido(String nombre) {
         return nombre != null && !nombre.trim().isEmpty();
     }
 
     /**
-     * Verifica que un texto ingresado (ej. el ID de un cliente) contenga solo
-     * dígitos numéricos.
+     * Verifica que un texto ingresado (ej. el ID de un cliente) contenga solo dígitos numéricos.
      */
     public static boolean esIdNumerico(String texto) {
         return texto != null && texto.matches("\\d+");

@@ -48,8 +48,7 @@ public class Facturacion {
     }
 
     /**
-     * Un método de pago es válido si coincide (sin distinguir
-     * mayúsculas/minúsculas) con uno de los métodos permitidos.
+     * Un método de pago es válido si coincide (sin distinguir mayúsculas/minúsculas) con uno de los métodos permitidos.
      */
     public static boolean esMetodoPagoValido(String metodoPago) {
         return metodoPago != null && (metodoPago.equalsIgnoreCase(PAGO_EFECTIVO)
@@ -59,8 +58,7 @@ public class Facturacion {
     }
 
     /**
-     * Verifica que un texto ingresado (ej. el ID de una factura) contenga solo
-     * dígitos numéricos.
+     * Verifica que un texto ingresado (ej. el ID de una factura) contenga solo dígitos numéricos.
      */
     public static boolean esIdNumerico(String texto) {
         return texto != null && texto.matches("\\d+");
@@ -77,8 +75,7 @@ public class Facturacion {
     }
 
     /**
-     * Devuelve la lista de facturas asociadas a un cliente (ej. para ver su
-     * historial de pagos).
+     * Devuelve la lista de facturas asociadas a un cliente (ej. para ver su historial de pagos).
      */
     public static ArrayList<Facturacion> buscarPorCliente(ArrayList<Facturacion> listaFacturas, int idCliente) {
         ArrayList<Facturacion> resultado = new ArrayList<>();
