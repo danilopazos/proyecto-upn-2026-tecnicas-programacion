@@ -1,6 +1,7 @@
 package modelo;
 
 public class Consulta {
+
     private static int contadorId = 1;
 
     private int idConsulta;
@@ -17,8 +18,8 @@ public class Consulta {
     private String proximaCitaSugerida;
 
     public Consulta(int idMascota, int idCita, String fechaHora, String motivoConsulta, String veterinario,
-                     String diagnostico, String tratamientoIndicado, double peso, double temperatura,
-                     String observaciones, String proximaCitaSugerida) {
+            String diagnostico, String tratamientoIndicado, double peso, double temperatura,
+            String observaciones, String proximaCitaSugerida) {
         if (diagnostico == null || diagnostico.trim().isEmpty()) {
             throw new IllegalArgumentException("El diagnóstico no puede estar vacío.");
         }
@@ -38,7 +39,6 @@ public class Consulta {
     }
 
     // --- Getters ---
-
     public int getIdConsulta() {
         return idConsulta;
     }

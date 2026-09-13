@@ -3,6 +3,7 @@ package modelo;
 import java.util.ArrayList;
 
 public class Mascota {
+
     // Variable estática para llevar la cuenta global de mascotas creadas
     private static int contadorId = 1;
 
@@ -18,7 +19,7 @@ public class Mascota {
     private boolean esterilizado;
 
     public Mascota(int idCliente, String nombre, String especie, String raza,
-                    String fechaNacimiento, String sexo, double pesoInicial, boolean esterilizado) {
+            String fechaNacimiento, String sexo, double pesoInicial, boolean esterilizado) {
         if (!esNombreValido(nombre)) {
             throw new IllegalArgumentException("El nombre de la mascota no puede estar vacío.");
         }
@@ -38,7 +39,6 @@ public class Mascota {
     }
 
     // --- Validaciones ---
-
     /**
      * Un nombre es válido si no es null y no está vacío (ni compuesto solo de espacios).
      */
@@ -54,7 +54,6 @@ public class Mascota {
     }
 
     // --- Peso histórico ---
-
     public void registrarControlPeso(double nuevoPeso) {
         registrarControlPeso(nuevoPeso, null);
     }
@@ -79,7 +78,6 @@ public class Mascota {
     }
 
     // --- Búsqueda ---
-
     public static Mascota buscarPorId(ArrayList<Mascota> listaMascotas, int idMascota) {
         for (Mascota m : listaMascotas) {
             if (m.getIdMascota() == idMascota) {
@@ -90,7 +88,6 @@ public class Mascota {
     }
 
     // --- Getters ---
-
     public int getIdMascota() {
         return idMascota;
     }
