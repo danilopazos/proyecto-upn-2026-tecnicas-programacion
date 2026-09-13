@@ -9,7 +9,6 @@ import java.time.format.ResolverStyle;
 public class Cliente {
     // Variable estática para llevar la cuenta global de clientes creados
     private static int contadorId = 1;
-
     private int idCliente; // Cambiado a int para que sea numérico
     private String nombreCompleto;
     private String telefono;
@@ -49,7 +48,6 @@ public class Cliente {
     }
 
     // --- Validaciones ---
-
     /**
      * Acepta letras Unicode (incluye tildes y ñ), espacios, guiones y apóstrofos.
      */
@@ -63,7 +61,7 @@ public class Cliente {
     public static boolean esDniValido(String dni) {
         return dni != null && dni.matches("\\d{8}");
     }
-    
+
     public static boolean esTelefonoValido(String telefono) {
         return telefono != null && telefono.matches("\\d{9}");
     }
@@ -117,7 +115,6 @@ public class Cliente {
     }
 
     // --- Getters ---
-
     public int getIdCliente() {
         return idCliente;
     }
