@@ -39,7 +39,6 @@ public class Mascota {
 
     // --- Validaciones ---
     public static boolean esNombreValido(String nombre) {
-        // Usa la misma validación robusta que tu compañero puso en Cliente
         return nombre != null && nombre.trim().matches("[\\p{L}\\p{M}]+(?:[ '\u2019-][\\p{L}\\p{M}]+)*");
     }
 
