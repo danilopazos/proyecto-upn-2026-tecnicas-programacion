@@ -1,4 +1,3 @@
-
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -23,153 +22,106 @@ public class Main {
 
         do {
             System.out.println("BIENVENIDO AL SISTEMA DE VETERINARIA");
-            System.out.println("===================================");
-            System.out.println("Elige una opción:");
-            System.out.println("1 - Registrar un cliente");
-            System.out.println("2 - Buscar un cliente");
-            System.out.println("3 - Registrar una mascota");
-            System.out.println("4 - Buscar una mascota");
-            System.out.println("5 - Registrar una cita");
-            System.out.println("6 - Gestionar una cita (confirmar/cancelar/completar)");
-            System.out.println("7 - Ver historial clínico de una mascota");
-            System.out.println("8 - Registrar personal");
-            System.out.println("9 - Buscar personal");
-            System.out.println("10 - Registrar una factura");
-            System.out.println("11 - Ver facturas de un cliente");
+            System.out.println("=========================================");
+            System.out.println("Elige una opcion:");
+            System.out.println("1 - Registrar Cliente y/o Mascota");
+            System.out.println("2 - Buscar Cliente y ver Historial Clinico");
+            System.out.println("3 - Registrar una cita");
+            System.out.println("4 - Gestionar una cita (confirmar/cancelar/completar)");
+            System.out.println("5 - Registrar personal");
+            System.out.println("6 - Buscar personal");
+            System.out.println("7 - Registrar una factura");
+            System.out.println("8 - Ver facturas de un cliente");
             System.out.println("0 - Salir");
-            System.out.print("\nIngresa una opción: ");
+            System.out.print("\nIngresa una opcion: ");
 
-            // Try catch para controlar errores
             try {
                 opcion = scanner.nextInt();
                 scanner.nextLine(); // Limpiar el buffer
 
                 switch (opcion) {
                     case 1: {
-                        System.out.println("\n--- REGISTRO DE CLIENTE ---");
-
-                        String nombre;
-                        do {
-                            System.out.print("Nombre completo: ");
-                            nombre = scanner.nextLine().trim();
-                            if (!Cliente.esNombreValido(nombre)) {
-                                System.out.println("[ERROR] El nombre debe contener letras y puede incluir espacios, guiones o apóstrofos.");
-                            }
-                        } while (!Cliente.esNombreValido(nombre));
-
-                        String telefono;
-                        do{
-                             System.out.print("Teléfono (9 dígitos): ");
-                             telefono = scanner.nextLine().trim();
-                             if (!Cliente.esTelefonoValido(telefono)) {
-                                 System.out.println("[ERROR] El teléfono debe tener exactamente 9 dígitos numéricos.");
-                             }
-                        } while (!Cliente.esTelefonoValido(telefono));
-                            
-                        String email;
-                        do {
-                            System.out.print("Email (Ej: nombre@dominio.com): ");
-                            email = scanner.nextLine().trim();
-                            if (!Cliente.esEmailValido(email)) {
-                                System.out.println("[ERROR] Ingresa un correo válido (Ej: nombre@dominio.com).");
-                            }
-                        } while (!Cliente.esEmailValido(email));
-
-                        String direccion;
-                        do {
-                            System.out.print("Dirección: ");
-                            direccion = scanner.nextLine().trim();
-                            if (!Cliente.esDireccionValida(direccion)) {
-                                System.out.println("[ERROR] La dirección no puede estar vacía.");
-                            }
-                        } while (!Cliente.esDireccionValida(direccion));
-
+                        System.out.println("\n--- REGISTRO DE CLIENTE Y/O MASCOTA ---");
                         String dni;
                         do {
-                            System.out.print("DNI (8 dígitos numéricos): ");
+                            System.out.print("DNI del cliente (obligatoriamente 8 dígitos numéricos): ");
                             dni = scanner.nextLine().trim();
                             if (!Cliente.esDniValido(dni)) {
                                 System.out.println("[ERROR] El DNI debe tener exactamente 8 dígitos numéricos.");
-                            } else if (Cliente.existeDni(listaClientes, dni)) {
-                                System.out.println("[ERROR] Ya figura un cliente registrado con el DNI " + dni + ".");
                             }
-                        } while (!Cliente.esDniValido(dni) || Cliente.existeDni(listaClientes, dni));
+                        } while (!Cliente.esDniValido(dni));
 
-                        String fecha;
-                        do {
-                            System.out.print("Fecha de registro (dd/MM/aaaa, Ej: 30/08/2026): ");
-                            fecha = scanner.nextLine().trim();
-                            if (!Cliente.esFechaRegistroValida(fecha)) {
-                                System.out.println("[ERROR] Ingresa una fecha real en formato dd/MM/aaaa.");
+                        Cliente clienteActual = null;
+
+                        if (!Cliente.existeDni(listaClientes, dni)) {
+                            System.out.println("Procediendo a registrar cliente nuevo...");
+                            
+                            String nombre;
+                            do {
+                                System.out.print("Nombre completo: ");
+                                nombre = scanner.nextLine().trim();
+                                if (!Cliente.esNombreValido(nombre)) {
+                                    System.out.println("[ERROR] El nombre debe contener letras y puede incluir espacios o apóstrofos.");
+                                }
+                            } while (!Cliente.esNombreValido(nombre));
+
+                            String telefono;
+                            do {
+                                System.out.print("Teléfono (9 dígitos): ");
+                                telefono = scanner.nextLine().trim();
+                                if (!Cliente.esTelefonoValido(telefono)) {
+                                    System.out.println("[ERROR] El teléfono debe tener exactamente 9 dígitos numéricos.");
+                                }
+                            } while (!Cliente.esTelefonoValido(telefono));
+
+                            String email;
+                            do {
+                                System.out.print("Email (Ej: nombre@dominio.com): ");
+                                email = scanner.nextLine().trim();
+                                if (!Cliente.esEmailValido(email)) {
+                                    System.out.println("[ERROR] Ingresa un correo válido (Ej: nombre@dominio.com).");
+                                }
+                            } while (!Cliente.esEmailValido(email));
+
+                            String direccion;
+                            do {
+                                System.out.print("Dirección: ");
+                                direccion = scanner.nextLine().trim();
+                                if (!Cliente.esDireccionValida(direccion)) {
+                                    System.out.println("[ERROR] La dirección no puede estar vacía.");
+                                }
+                            } while (!Cliente.esDireccionValida(direccion));
+                            
+                            String fecha;
+                            do {
+                                System.out.print("Fecha de registro (dd/MM/aaaa, Ej: 30/08/2026): ");
+                                fecha = scanner.nextLine().trim();
+                                if (!Cliente.esFechaRegistroValida(fecha)) {
+                                    System.out.println("[ERROR] Ingresa una fecha real en formato dd/MM/aaaa.");
+                                }
+                            } while (!Cliente.esFechaRegistroValida(fecha));
+
+                            clienteActual = new Cliente(nombre, telefono, email, direccion, dni, fecha);
+                            listaClientes.add(clienteActual);
+                            System.out.println("¡Cliente registrado con éxito! (ID asignado: " + clienteActual.getIdCliente() + ")\n");
+                        } else {
+                            for (Cliente c : listaClientes) {
+                                if (c.getDni().equalsIgnoreCase(dni)) {
+                                    clienteActual = c;
+                                    break;
+                                }
                             }
-                        } while (!Cliente.esFechaRegistroValida(fecha));
-
-                        Cliente nuevoCliente = new Cliente(nombre, telefono, email, direccion, dni, fecha);
-                        listaClientes.add(nuevoCliente);
-
-                        System.out.println("¡Cliente registrado con éxito! (ID asignado: " + nuevoCliente.getIdCliente() + ")\n");
-                        pausar(scanner);
-                        break;
-                    }
-
-                    case 2: {
-                        System.out.println("\n--- BUSCAR CLIENTE ---");
-                        String dniBuscar;
-                        do {
-                            System.out.print("Ingresa el DNI a buscar (8 dígitos): ");
-                            dniBuscar = scanner.nextLine().trim();
-                            if (!Cliente.esDniValido(dniBuscar)) {
-                                System.out.println("[ERROR] El DNI debe tener exactamente 8 dígitos numéricos.");
-                            }
-                        } while (!Cliente.esDniValido(dniBuscar));
-
-                        boolean encontrado = false;
-                        for (Cliente c : listaClientes) {
-                            if (c.getDni().equalsIgnoreCase(dniBuscar)) {
-                                c.mostrarDatos();
-                                encontrado = true;
-                                break;
-                            }
+                            System.out.println("\n[Cliente encontrado en el sistema]");
+                            clienteActual.mostrarDatos(true);
                         }
 
-                        if (!encontrado) {
-                            System.out.println("No se encontró ningún cliente con ese DNI.\n");
-                        }
-                        pausar(scanner);
-                        break;
-                    }
-
-                    case 3: {
-                        System.out.println("\n--- REGISTRO DE MASCOTA ---");
-
-                        if (listaClientes.isEmpty()) {
-                            System.out.println("[ERROR] No hay clientes registrados. Registra un cliente antes de registrar una mascota.\n");
-                            pausar(scanner);
-                            break;
-                        }
-
-                        int idClienteMascota = -1;
-                        boolean idClienteValido = false;
-                        do {
-                            System.out.print("ID del cliente (dueño): ");
-                            String idClienteTexto = scanner.nextLine();
-                            if (!Mascota.esIdNumerico(idClienteTexto)) {
-                                System.out.println("[ERROR] El ID del cliente debe contener solo números.");
-                                continue;
-                            }
-                            idClienteMascota = Integer.parseInt(idClienteTexto);
-                            idClienteValido = Cliente.existeId(listaClientes, idClienteMascota);
-                            if (!idClienteValido) {
-                                System.out.println("[ERROR] No existe ningún cliente con ese ID.");
-                            }
-                        } while (!idClienteValido);
-
+                        System.out.println("\n--- Registrando mascota para el cliente ---");
                         String nombreMascota;
                         do {
                             System.out.print("Nombre de la mascota: ");
-                            nombreMascota = scanner.nextLine();
+                            nombreMascota = scanner.nextLine().trim();
                             if (!Mascota.esNombreValido(nombreMascota)) {
-                                System.out.println("[ERROR] El nombre no puede estar vacío.");
+                                System.out.println("[ERROR] El nombre no puede estar vacío y no debe contener números.");
                             }
                         } while (!Mascota.esNombreValido(nombreMascota));
 
@@ -177,8 +129,16 @@ public class Main {
                         String especie = scanner.nextLine();
                         System.out.print("Raza: ");
                         String raza = scanner.nextLine();
-                        System.out.print("Fecha de nacimiento (Ej: 30/08/2026): ");
-                        String fechaNacimiento = scanner.nextLine();
+                        
+                        String fechaNacimiento;
+                        do {
+                            System.out.print("Fecha de nacimiento (dd/MM/aaaa, Ej: 15/05/2024): ");
+                            fechaNacimiento = scanner.nextLine().trim();
+                            if (!Cliente.esFechaRegistroValida(fechaNacimiento)) {
+                                System.out.println("[ERROR] Ingresa una fecha real en formato dd/MM/aaaa.");
+                            }
+                        } while (!Cliente.esFechaRegistroValida(fechaNacimiento));
+                        
                         System.out.print("Sexo (M/H): ");
                         String sexo = scanner.nextLine();
 
@@ -202,7 +162,7 @@ public class Main {
                         String esterilizadoTexto = scanner.nextLine();
                         boolean esterilizado = esterilizadoTexto.equalsIgnoreCase("S");
 
-                        Mascota nuevaMascota = new Mascota(idClienteMascota, nombreMascota, especie, raza,
+                        Mascota nuevaMascota = new Mascota(clienteActual.getIdCliente(), nombreMascota, especie, raza,
                                 fechaNacimiento, sexo, peso, esterilizado);
                         listaMascotas.add(nuevaMascota);
 
@@ -211,28 +171,72 @@ public class Main {
                         break;
                     }
 
-                    case 4: {
-                        System.out.println("\n--- BUSCAR MASCOTA ---");
-                        System.out.print("Ingresa el ID de la mascota a buscar: ");
-                        String idMascotaTexto = scanner.nextLine();
+                    case 2: {
+                        System.out.println("\n--- BUSCAR CLIENTE E HISTORIAL CLÍNICO ---");
+                        String dniBuscar;
+                        do {
+                            System.out.print("Ingresa el DNI del cliente a buscar (8 dígitos): ");
+                            dniBuscar = scanner.nextLine().trim();
+                            if (!Cliente.esDniValido(dniBuscar)) {
+                                System.out.println("[ERROR] El DNI debe tener exactamente 8 dígitos numéricos.");
+                            }
+                        } while (!Cliente.esDniValido(dniBuscar));
 
-                        if (!Mascota.esIdNumerico(idMascotaTexto)) {
-                            System.out.println("[ERROR] El ID debe contener solo números.\n");
-                            pausar(scanner);
-                            break;
+                        Cliente clienteBuscado = null;
+                        for (Cliente c : listaClientes) {
+                            if (c.getDni().equalsIgnoreCase(dniBuscar)) {
+                                clienteBuscado = c;
+                                break;
+                            }
                         }
 
-                        Mascota mascotaBuscada = Mascota.buscarPorId(listaMascotas, Integer.parseInt(idMascotaTexto));
-                        if (mascotaBuscada != null) {
-                            mascotaBuscada.mostrarDatos();
+                        if (clienteBuscado == null) {
+                            System.out.println("\nEl cliente no ha sido registrado.\n");
                         } else {
-                            System.out.println("No se encontró ninguna mascota con ese ID.\n");
+                            System.out.println("\n[Datos del Cliente]");
+                            clienteBuscado.mostrarDatos(true);
+
+                            ArrayList<Mascota> mascotasDelCliente = new ArrayList<>();
+                            for (Mascota m : listaMascotas) {
+                                if (m.getIdCliente() == clienteBuscado.getIdCliente()) {
+                                    mascotasDelCliente.add(m);
+                                }
+                            }
+
+                            if (mascotasDelCliente.isEmpty()) {
+                                System.out.println("\nEste cliente no tiene mascotas registradas.");
+                            } else {
+                                System.out.println("\n--- Mascotas Registradas ---");
+                                for (Mascota m : mascotasDelCliente) {
+                                    m.mostrarDatos(true);
+                                }
+
+                                System.out.print("\nIngresa el ID de la mascota para ver su historial clínico (o 0 para salir): ");
+                                String inputId = scanner.nextLine();
+                                
+                                if (!inputId.equals("0") && Mascota.esIdNumerico(inputId)) {
+                                    int idMascotaElegida = Integer.parseInt(inputId);
+                                    System.out.println("\n--- HISTORIAL CLÍNICO ---");
+                                    boolean tieneConsultas = false;
+                                    
+                                    for (Consulta c : listaConsultas) {
+                                        if (c.getIdMascota() == idMascotaElegida) {
+                                            c.mostrarDatos();
+                                            tieneConsultas = true;
+                                        }
+                                    }
+                                    
+                                    if (!tieneConsultas) {
+                                        System.out.println("Esta mascota no tiene consultas registradas en su historial.\n");
+                                    }
+                                }
+                            }
                         }
                         pausar(scanner);
                         break;
                     }
 
-                    case 5: {
+                    case 3: {
                         System.out.println("\n--- REGISTRAR CITA ---");
 
                         if (listaMascotas.isEmpty()) {
@@ -301,7 +305,7 @@ public class Main {
                         break;
                     }
 
-                    case 6: {
+                    case 4: {
                         System.out.println("\n--- GESTIONAR CITA ---");
 
                         if (listaCitas.isEmpty()) {
@@ -420,12 +424,8 @@ public class Main {
                                             proximaCita);
                                     listaConsultas.add(nuevaConsulta);
 
-                                    // El peso registrado en la consulta pasa a formar parte
-                                    // del historial de peso de la mascota.
                                     Mascota mascotaAtendida = Mascota.buscarPorId(listaMascotas, citaGestion.getIdMascota());
                                     if (mascotaAtendida != null) {
-                                        // Se usa la sobrecarga con fecha para dejar registrada
-                                        // la fecha/hora de la cita junto con el peso tomado.
                                         mascotaAtendida.registrarControlPeso(pesoConsulta, citaGestion.getFechaHora());
                                     }
 
@@ -446,34 +446,7 @@ public class Main {
                         break;
                     }
 
-                    case 7: {
-                        System.out.println("\n--- HISTORIAL CLÍNICO DE UNA MASCOTA ---");
-                        System.out.print("Ingresa el ID de la mascota: ");
-                        String idMascotaHistTexto = scanner.nextLine();
-
-                        if (!Mascota.esIdNumerico(idMascotaHistTexto)) {
-                            System.out.println("[ERROR] El ID debe contener solo números.\n");
-                            pausar(scanner);
-                            break;
-                        }
-
-                        int idMascotaHist = Integer.parseInt(idMascotaHistTexto);
-                        boolean tieneConsultas = false;
-                        for (Consulta c : listaConsultas) {
-                            if (c.getIdMascota() == idMascotaHist) {
-                                c.mostrarDatos();
-                                tieneConsultas = true;
-                            }
-                        }
-
-                        if (!tieneConsultas) {
-                            System.out.println("Esta mascota no tiene consultas registradas en su historial.\n");
-                        }
-                        pausar(scanner);
-                        break;
-                    }
-
-                    case 8: {
+                    case 5: {
                         System.out.println("\n--- REGISTRO DE PERSONAL ---");
 
                         String nombrePersonal;
@@ -516,7 +489,7 @@ public class Main {
                         break;
                     }
 
-                    case 9: {
+                    case 6: {
                         System.out.println("\n--- BUSCAR PERSONAL ---");
                         System.out.print("Ingresa el ID del empleado a buscar: ");
                         String idPersonalTexto = scanner.nextLine();
@@ -537,7 +510,7 @@ public class Main {
                         break;
                     }
 
-                    case 10: {
+                    case 7: {
                         System.out.println("\n--- REGISTRAR FACTURA ---");
 
                         if (listaConsultas.isEmpty()) {
@@ -582,7 +555,7 @@ public class Main {
                             break;
                         }
 
-                        System.out.print("Fecha de la factura (Ej: 15/09/2026): ");
+                        System.out.print("Fecha de la factura (dd/MM/aaaa, Ej: 15/09/2026): ");
                         String fechaFactura = scanner.nextLine();
 
                         double montoFactura = -1;
@@ -633,7 +606,7 @@ public class Main {
                         break;
                     }
 
-                    case 11: {
+                    case 8: {
                         System.out.println("\n--- FACTURAS DE UN CLIENTE ---");
 
                         if (listaClientes.isEmpty()) {
@@ -675,14 +648,14 @@ public class Main {
                         break;
 
                     default:
-                        System.out.println("Opción inválida. Elige un número entre 0 y 11.\n");
+                        System.out.println("Opción inválida. Elige un número entre 0 y 8.\n");
                         pausar(scanner);
                 }
 
             } catch (InputMismatchException e) {
                 System.out.println("\n[ERROR] Debes ingresar un número válido, no letras.\n");
-                scanner.nextLine(); // Limpiar la entrada errónea del scanner para que no entre en bucle
-                opcion = -1; // Reiniciamos la opción (valor que no coincide con ningún caso) para que el ciclo continúe
+                scanner.nextLine(); 
+                opcion = -1; 
                 pausar(scanner);
             } catch (Exception e) {
                 System.out.println("\n[ERROR INESPERADO]: " + e.getMessage() + "\n");

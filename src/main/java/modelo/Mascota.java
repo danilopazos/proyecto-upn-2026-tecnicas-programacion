@@ -4,24 +4,23 @@ import java.util.ArrayList;
 
 public class Mascota {
 
-    // Variable estática para llevar la cuenta global de mascotas creadas
     private static int contadorId = 1;
 
-    private int idMascota;      // Autogenerado: siempre numérico, nunca se ingresa por teclado
-    private int idCliente;      // Relación con el dueño (Cliente)
+    private int idMascota;      
+    private int idCliente;      
     private String nombre;
-    private String especie;     // Perro, gato, conejo, etc.
+    private String especie;     
     private String raza;
     private String fechaNacimiento;
     private String sexo;
-    private ArrayList<Double> historialPeso; // Peso histórico: se agrega un valor nuevo en cada control
-    private ArrayList<String> fechasHistorialPeso; // Fecha asociada a cada peso (paralelo a historialPeso)
+    private ArrayList<Double> historialPeso; 
+    private ArrayList<String> fechasHistorialPeso; 
     private boolean esterilizado;
 
     public Mascota(int idCliente, String nombre, String especie, String raza,
             String fechaNacimiento, String sexo, double pesoInicial, boolean esterilizado) {
         if (!esNombreValido(nombre)) {
-            throw new IllegalArgumentException("El nombre de la mascota no puede estar vacío.");
+            throw new IllegalArgumentException("El nombre de la mascota no puede estar vacío y no debe contener números.");
         }
 
         this.idMascota = contadorId++;
@@ -39,16 +38,11 @@ public class Mascota {
     }
 
     // --- Validaciones ---
-    /**
-     * Un nombre es válido si no es null y no está vacío (ni compuesto solo de espacios).
-     */
     public static boolean esNombreValido(String nombre) {
-        return nombre != null && !nombre.trim().isEmpty();
+        // Usa la misma validación robusta que tu compañero puso en Cliente
+        return nombre != null && nombre.trim().matches("[\\p{L}\\p{M}]+(?:[ '\u2019-][\\p{L}\\p{M}]+)*");
     }
 
-    /**
-     * Verifica que un texto ingresado (ej. el ID de un cliente) contenga solo dígitos numéricos.
-     */
     public static boolean esIdNumerico(String texto) {
         return texto != null && texto.matches("\\d+");
     }
