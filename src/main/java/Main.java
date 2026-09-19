@@ -61,7 +61,7 @@ public class Main {
                                 System.out.print("Nombre completo: ");
                                 nombre = scanner.nextLine().trim();
                                 if (!Cliente.esNombreValido(nombre)) {
-                                    System.out.println("[ERROR] El nombre debe contener letras y puede incluir espacios o apóstrofes.");
+                                    System.out.println("[ERROR] El nombre debe contener letras y puede incluir espacios o apóstrofos.");
                                 }
                             } while (!Cliente.esNombreValido(nombre));
 
