@@ -6,15 +6,15 @@ public class Mascota {
 
     private static int contadorId = 1;
 
-    private int idMascota;      
-    private int idCliente;      
+    private int idMascota;
+    private int idCliente;
     private String nombre;
-    private String especie;     
+    private String especie;
     private String raza;
     private String fechaNacimiento;
     private String sexo;
-    private ArrayList<Double> historialPeso; 
-    private ArrayList<String> fechasHistorialPeso; 
+    private ArrayList<Double> historialPeso;
+    private ArrayList<String> fechasHistorialPeso;
     private boolean esterilizado;
 
     public Mascota(int idCliente, String nombre, String especie, String raza,
@@ -37,9 +37,58 @@ public class Mascota {
         this.esterilizado = esterilizado;
     }
 
+    /**
+     * Constructor privado usado exclusivamente para reconstruir una mascota ya existente
+     * (con historial de peso ya cargado) a partir de los datos leídos de un archivo.
+     */
+    private Mascota(int idMascota, int idCliente, String nombre, String especie, String raza,
+            String fechaNacimiento, String sexo, boolean esterilizado,
+            ArrayList<Double> historialPeso, ArrayList<String> fechasHistorialPeso) {
+        this.idMascota = idMascota;
+        this.idCliente = idCliente;
+        this.nombre = nombre;
+        this.especie = especie;
+        this.raza = raza;
+        this.fechaNacimiento = fechaNacimiento;
+        this.sexo = sexo;
+        this.esterilizado = esterilizado;
+        this.historialPeso = historialPeso;
+        this.fechasHistorialPeso = fechasHistorialPeso;
+    }
+
+    /**
+     * Reconstruye una Mascota a partir de datos leídos de un archivo.
+     * Lanza IllegalArgumentException si algún dato es inválido, para que la capa de
+     * persistencia pueda descartar esa línea sin detener la carga del resto.
+     * Uso exclusivo de la capa de persistencia (persistencia.MascotaRepositorio).
+     */
+    public static Mascota reconstruirDesdeArchivo(int idMascota, int idCliente, String nombre, String especie,
+            String raza, String fechaNacimiento, String sexo, boolean esterilizado,
+            ArrayList<Double> historialPeso, ArrayList<String> fechasHistorialPeso) {
+        if (idMascota <= 0) {
+            throw new IllegalArgumentException("El ID de la mascota debe ser un número mayor que 0.");
+        }
+        if (!esNombreValido(nombre)) {
+            throw new IllegalArgumentException("Nombre de mascota inválido en el archivo.");
+        }
+        if (historialPeso == null || historialPeso.isEmpty()) {
+            throw new IllegalArgumentException("La mascota debe tener al menos un registro de peso.");
+        }
+        if (fechasHistorialPeso == null || fechasHistorialPeso.size() != historialPeso.size()) {
+            throw new IllegalArgumentException("El historial de peso y sus fechas no coinciden en cantidad.");
+        }
+
+        Mascota m = new Mascota(idMascota, idCliente, nombre, especie, raza, fechaNacimiento, sexo,
+                esterilizado, historialPeso, fechasHistorialPeso);
+        if (idMascota >= contadorId) {
+            contadorId = idMascota + 1;
+        }
+        return m;
+    }
+
     // --- Validaciones ---
     public static boolean esNombreValido(String nombre) {
-        return nombre != null && nombre.trim().matches("[\\p{L}\\p{M}]+(?:[ '\u2019-][\\p{L}\\p{M}]+)*");
+        return nombre != null && nombre.trim().matches("[\\p{L}\\p{M}]+(?:[ '’-][\\p{L}\\p{M}]+)*");
     }
 
     public static boolean esIdNumerico(String texto) {
@@ -87,6 +136,30 @@ public class Mascota {
 
     public int getIdCliente() {
         return idCliente;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public String getEspecie() {
+        return especie;
+    }
+
+    public String getRaza() {
+        return raza;
+    }
+
+    public String getFechaNacimiento() {
+        return fechaNacimiento;
+    }
+
+    public String getSexo() {
+        return sexo;
+    }
+
+    public boolean isEsterilizado() {
+        return esterilizado;
     }
 
     public void mostrarDatos() {

@@ -47,12 +47,68 @@ public class Cliente {
         this.fechaRegistro = fechaRegistro;
     }
 
+    /**
+     * Constructor privado usado exclusivamente para reconstruir un cliente ya
+     * existente (con un ID ya asignado previamente) a partir de los datos
+     * leídos de un archivo. No valida (la validación se hace en
+     * {@link #reconstruirDesdeArchivo}) y no cambia el contador global salvo
+     * que se le indique explícitamente.
+     */
+    private Cliente(int idCliente, String nombreCompleto, String telefono, String email,
+            String direccion, String dni, String fechaRegistro) {
+        this.idCliente = idCliente;
+        this.nombreCompleto = nombreCompleto;
+        this.telefono = telefono;
+        this.email = email;
+        this.direccion = direccion;
+        this.dni = dni;
+        this.fechaRegistro = fechaRegistro;
+    }
+
+    /**
+     * Reconstruye un Cliente a partir de datos leídos de un archivo (por eso recibe el ID ya asignado).
+     * Válida el formato de cada campo igual que el constructor normal; si algo es inválido lanza
+     * IllegalArgumentException para que la capa de persistencia pueda descartar esa línea del archivo
+     * sin detener la carga del resto de registros.
+     * Uso exclusivo de la capa de persistencia (persistencia.ClienteRepositorio).
+     */
+    public static Cliente reconstruirDesdeArchivo(int idCliente, String nombreCompleto, String telefono,
+            String email, String direccion, String dni, String fechaRegistro) {
+        if (idCliente <= 0) {
+            throw new IllegalArgumentException("El ID del cliente debe ser un número mayor que 0.");
+        }
+        if (!esNombreValido(nombreCompleto)) {
+            throw new IllegalArgumentException("Nombre de cliente inválido en el archivo.");
+        }
+        if (!esDniValido(dni)) {
+            throw new IllegalArgumentException("DNI inválido en el archivo (debe tener 8 dígitos).");
+        }
+        if (!esTelefonoValido(telefono)) {
+            throw new IllegalArgumentException("Teléfono inválido en el archivo (debe tener 9 dígitos).");
+        }
+        if (!esEmailValido(email)) {
+            throw new IllegalArgumentException("Email inválido en el archivo.");
+        }
+        if (!esDireccionValida(direccion)) {
+            throw new IllegalArgumentException("Dirección inválida en el archivo.");
+        }
+        if (!esFechaRegistroValida(fechaRegistro)) {
+            throw new IllegalArgumentException("Fecha de registro inválida en el archivo.");
+        }
+
+        Cliente c = new Cliente(idCliente, nombreCompleto, telefono, email, direccion, dni, fechaRegistro);
+        if (idCliente >= contadorId) {
+            contadorId = idCliente + 1; // Evita que un nuevo registro colisione con uno cargado desde archivo
+        }
+        return c;
+    }
+
     // --- Validaciones ---
     /**
      * Acepta letras Unicode (incluye tildes y ñ), espacios, guiones y apóstrofos.
      */
     public static boolean esNombreValido(String nombre) {
-        return nombre != null && nombre.trim().matches("[\\p{L}\\p{M}]+(?:[ '\u2019-][\\p{L}\\p{M}]+)*");
+        return nombre != null && nombre.trim().matches("[\\p{L}\\p{M}]+(?:[ '’-][\\p{L}\\p{M}]+)*");
     }
 
     /**
@@ -119,8 +175,28 @@ public class Cliente {
         return idCliente;
     }
 
+    public String getNombreCompleto() {
+        return nombreCompleto;
+    }
+
+    public String getTelefono() {
+        return telefono;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getDireccion() {
+        return direccion;
+    }
+
     public String getDni() {
         return dni;
+    }
+
+    public String getFechaRegistro() {
+        return fechaRegistro;
     }
 
     public void mostrarDatos() {

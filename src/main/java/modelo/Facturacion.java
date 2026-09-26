@@ -39,6 +39,46 @@ public class Facturacion {
         this.metodoPago = metodoPago;
     }
 
+    /**
+     * Constructor privado usado exclusivamente para reconstruir una factura ya existente
+     * a partir de los datos leídos de un archivo.
+     */
+    private Facturacion(int idFactura, int idCliente, int idConsulta, String fecha, double monto, String metodoPago) {
+        this.idFactura = idFactura;
+        this.idCliente = idCliente;
+        this.idConsulta = idConsulta;
+        this.fecha = fecha;
+        this.monto = monto;
+        this.metodoPago = metodoPago;
+    }
+
+    /**
+     * Reconstruye una Facturacion a partir de datos leídos de un archivo. Lanza IllegalArgumentException
+     * si algún dato es inválido, para que la capa de persistencia descarte la línea sin detener la
+     * carga del resto. Uso exclusivo de la capa de persistencia (persistencia.FacturacionRepositorio).
+     */
+    public static Facturacion reconstruirDesdeArchivo(int idFactura, int idCliente, int idConsulta, String fecha,
+            double monto, String metodoPago) {
+        if (idFactura <= 0) {
+            throw new IllegalArgumentException("El ID de la factura debe ser un número mayor que 0.");
+        }
+        if (fecha == null || fecha.trim().isEmpty()) {
+            throw new IllegalArgumentException("Fecha de factura inválida en el archivo.");
+        }
+        if (!esMontoValido(monto)) {
+            throw new IllegalArgumentException("Monto de factura inválido en el archivo.");
+        }
+        if (!esMetodoPagoValido(metodoPago)) {
+            throw new IllegalArgumentException("Método de pago inválido en el archivo: " + metodoPago);
+        }
+
+        Facturacion f = new Facturacion(idFactura, idCliente, idConsulta, fecha, monto, metodoPago);
+        if (idFactura >= contadorId) {
+            contadorId = idFactura + 1;
+        }
+        return f;
+    }
+
     // --- Validaciones ---
     /**
      * Un monto es válido si es un número mayor que 0.

@@ -7,8 +7,23 @@ import modelo.Consulta;
 import modelo.Facturacion;
 import modelo.Mascota;
 import modelo.Personal;
+import persistencia.ArchivoDatosException;
+import persistencia.CitaRepositorio;
+import persistencia.ClienteRepositorio;
+import persistencia.ConsultaRepositorio;
+import persistencia.FacturacionRepositorio;
+import persistencia.MascotaRepositorio;
+import persistencia.PersonalRepositorio;
 
 public class Main {
+
+    // Rutas de los archivos de datos del sistema (carpeta "data" dentro del proyecto).
+    private static final String RUTA_CLIENTES = "data/clientes.csv";
+    private static final String RUTA_MASCOTAS = "data/mascotas.csv";
+    private static final String RUTA_CITAS = "data/citas.csv";
+    private static final String RUTA_CONSULTAS = "data/consultas.csv";
+    private static final String RUTA_PERSONAL = "data/personal.csv";
+    private static final String RUTA_FACTURAS = "data/facturas.csv";
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -19,6 +34,22 @@ public class Main {
         ArrayList<Personal> listaPersonal = new ArrayList<>();
         ArrayList<Facturacion> listaFacturas = new ArrayList<>();
         int opcion = -1;
+
+        // --- Carga automática de datos guardados en ejecuciones anteriores ---
+        System.out.println("Cargando datos guardados...");
+        try {
+            listaClientes = ClienteRepositorio.cargar(RUTA_CLIENTES);
+            listaMascotas = MascotaRepositorio.cargar(RUTA_MASCOTAS);
+            listaPersonal = PersonalRepositorio.cargar(RUTA_PERSONAL);
+            listaCitas = CitaRepositorio.cargar(RUTA_CITAS);
+            listaConsultas = ConsultaRepositorio.cargar(RUTA_CONSULTAS);
+            listaFacturas = FacturacionRepositorio.cargar(RUTA_FACTURAS);
+            System.out.println("Carga finalizada.\n");
+        } catch (ArchivoDatosException e) {
+            System.out.println("[ERROR AL CARGAR DATOS] " + e.getMessage());
+            System.out.println("El sistema continuará con las listas vacías; los datos guardados no se perdieron,\n"
+                    + "revisa el mensaje de error anterior antes de volver a guardar.\n");
+        }
 
         do {
             System.out.println("BIENVENIDO AL SISTEMA DE VETERINARIA");
@@ -32,6 +63,7 @@ public class Main {
             System.out.println("6 - Buscar personal");
             System.out.println("7 - Registrar una factura");
             System.out.println("8 - Ver facturas de un cliente");
+            System.out.println("9 - Guardar todos los datos en archivo");
             System.out.println("0 - Salir");
             System.out.print("\nIngresa una opcion: ");
 
@@ -55,7 +87,7 @@ public class Main {
 
                         if (!Cliente.existeDni(listaClientes, dni)) {
                             System.out.println("Procediendo a registrar cliente nuevo...");
-                            
+
                             String nombre;
                             do {
                                 System.out.print("Nombre completo: ");
@@ -91,7 +123,7 @@ public class Main {
                                     System.out.println("[ERROR] La dirección no puede estar vacía.");
                                 }
                             } while (!Cliente.esDireccionValida(direccion));
-                            
+
                             String fecha;
                             do {
                                 System.out.print("Fecha de registro (dd/MM/aaaa, Ej: 30/08/2026): ");
@@ -129,7 +161,7 @@ public class Main {
                         String especie = scanner.nextLine();
                         System.out.print("Raza: ");
                         String raza = scanner.nextLine();
-                        
+
                         String fechaNacimiento;
                         do {
                             System.out.print("Fecha de nacimiento (dd/MM/aaaa, Ej: 15/05/2024): ");
@@ -138,7 +170,7 @@ public class Main {
                                 System.out.println("[ERROR] Ingresa una fecha real en formato dd/MM/aaaa.");
                             }
                         } while (!Cliente.esFechaRegistroValida(fechaNacimiento));
-                        
+
                         System.out.print("Sexo (M/H): ");
                         String sexo = scanner.nextLine();
 
@@ -213,19 +245,19 @@ public class Main {
 
                                 System.out.print("\nIngresa el ID de la mascota para ver su historial clínico (o 0 para salir): ");
                                 String inputId = scanner.nextLine();
-                                
+
                                 if (!inputId.equals("0") && Mascota.esIdNumerico(inputId)) {
                                     int idMascotaElegida = Integer.parseInt(inputId);
                                     System.out.println("\n--- HISTORIAL CLÍNICO ---");
                                     boolean tieneConsultas = false;
-                                    
+
                                     for (Consulta c : listaConsultas) {
                                         if (c.getIdMascota() == idMascotaElegida) {
                                             c.mostrarDatos();
                                             tieneConsultas = true;
                                         }
                                     }
-                                    
+
                                     if (!tieneConsultas) {
                                         System.out.println("Esta mascota no tiene consultas registradas en su historial.\n");
                                     }
@@ -643,19 +675,32 @@ public class Main {
                         break;
                     }
 
-                    case 0:
+                    case 9: {
+                        System.out.println("\n--- GUARDAR DATOS EN ARCHIVO ---");
+                        guardarTodo(listaClientes, listaMascotas, listaCitas, listaConsultas, listaPersonal, listaFacturas);
+                        pausar(scanner);
+                        break;
+                    }
+
+                    case 0: {
+                        System.out.print("\n¿Deseas guardar los cambios antes de salir? (S/N): ");
+                        String respuestaGuardar = scanner.nextLine();
+                        if (respuestaGuardar.trim().equalsIgnoreCase("S")) {
+                            guardarTodo(listaClientes, listaMascotas, listaCitas, listaConsultas, listaPersonal, listaFacturas);
+                        }
                         System.out.println("Saliendo del sistema...");
                         break;
+                    }
 
                     default:
-                        System.out.println("Opción inválida. Elige un número entre 0 y 8.\n");
+                        System.out.println("Opción inválida. Elige un número entre 0 y 9.\n");
                         pausar(scanner);
                 }
 
             } catch (InputMismatchException e) {
                 System.out.println("\n[ERROR] Debes ingresar un número válido, no letras.\n");
-                scanner.nextLine(); 
-                opcion = -1; 
+                scanner.nextLine();
+                opcion = -1;
                 pausar(scanner);
             } catch (Exception e) {
                 System.out.println("\n[ERROR INESPERADO]: " + e.getMessage() + "\n");
@@ -665,6 +710,48 @@ public class Main {
         } while (opcion != 0);
 
         scanner.close();
+    }
+
+    /**
+     * Guarda las seis colecciones del sistema en sus respectivos archivos CSV (carpeta data/).
+     * Si alguno falla (permisos, disco lleno, ruta inválida, etc.) se informa el error concreto
+     * de ESE archivo y se continúa intentando guardar los demás, en vez de perder todo el avance
+     * por un solo archivo con problemas.
+     */
+    private static void guardarTodo(ArrayList<Cliente> listaClientes, ArrayList<Mascota> listaMascotas,
+            ArrayList<Cita> listaCitas, ArrayList<Consulta> listaConsultas, ArrayList<Personal> listaPersonal,
+            ArrayList<Facturacion> listaFacturas) {
+        int guardadosOk = 0;
+        int guardadosError = 0;
+
+        guardadosOk += intentarGuardar("clientes", () -> ClienteRepositorio.guardar(listaClientes, RUTA_CLIENTES));
+        guardadosOk += intentarGuardar("mascotas", () -> MascotaRepositorio.guardar(listaMascotas, RUTA_MASCOTAS));
+        guardadosOk += intentarGuardar("personal", () -> PersonalRepositorio.guardar(listaPersonal, RUTA_PERSONAL));
+        guardadosOk += intentarGuardar("citas", () -> CitaRepositorio.guardar(listaCitas, RUTA_CITAS));
+        guardadosOk += intentarGuardar("consultas", () -> ConsultaRepositorio.guardar(listaConsultas, RUTA_CONSULTAS));
+        guardadosOk += intentarGuardar("facturas", () -> FacturacionRepositorio.guardar(listaFacturas, RUTA_FACTURAS));
+
+        guardadosError = 6 - guardadosOk;
+        if (guardadosError == 0) {
+            System.out.println("¡Todos los datos se guardaron correctamente en la carpeta 'data'!\n");
+        } else {
+            System.out.println(guardadosOk + " de 6 archivos se guardaron correctamente. Revisa los errores anteriores.\n");
+        }
+    }
+
+    /** Interfaz funcional interna para poder reutilizar el mismo bloque try/catch en guardarTodo(). */
+    private interface AccionGuardado {
+        void ejecutar() throws ArchivoDatosException;
+    }
+
+    private static int intentarGuardar(String nombreArchivo, AccionGuardado accion) {
+        try {
+            accion.ejecutar();
+            return 1;
+        } catch (ArchivoDatosException e) {
+            System.out.println("[ERROR] No se pudo guardar " + nombreArchivo + ": " + e.getMessage());
+            return 0;
+        }
     }
 
     private static void pausar(Scanner scanner) {
