@@ -1,3 +1,7 @@
+import java.io.IOException;
+import java.nio.file.Path;
+import persistencia.RepositorioCSV;
+import servicio.ServicioVeterinaria;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -12,8 +16,17 @@ public class Main {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        ArrayList<Cliente> listaClientes = new ArrayList<>();
-        ArrayList<Mascota> listaMascotas = new ArrayList<>();
+        ServicioVeterinaria servicio;
+        try {
+            servicio = new ServicioVeterinaria(new RepositorioCSV(Path.of(".")));
+        } catch (IOException e) {
+            System.out.println("[ERROR CSV] No se pudieron recuperar los datos: " + e.getMessage());
+            System.out.println("Corrige los archivos o sus permisos y vuelve a iniciar. Los archivos se conservan sin cambios.");
+            scanner.close();
+            return;
+        }
+        ArrayList<Cliente> listaClientes = servicio.getClientes();
+        ArrayList<Mascota> listaMascotas = servicio.getMascotas();
         ArrayList<Cita> listaCitas = new ArrayList<>();
         ArrayList<Consulta> listaConsultas = new ArrayList<>();
         ArrayList<Personal> listaPersonal = new ArrayList<>();
@@ -32,6 +45,9 @@ public class Main {
             System.out.println("6 - Buscar personal");
             System.out.println("7 - Registrar una factura");
             System.out.println("8 - Ver facturas de un cliente");
+            System.out.println("9 - Listar clientes registrados");
+            System.out.println("10 - Buscar cliente por ID");
+            System.out.println("11 - Registrar mascota por ID del propietario");
             System.out.println("0 - Salir");
             System.out.print("\nIngresa una opcion: ");
 
@@ -40,81 +56,112 @@ public class Main {
                 scanner.nextLine(); // Limpiar el buffer
 
                 switch (opcion) {
+                    case 9: {
+                        if (listaClientes.isEmpty()) System.out.println("No hay clientes registrados.");
+                        for (Cliente cliente : listaClientes) cliente.mostrarDatos();
+                        pausar(scanner);
+                        break;
+                    }
+                    case 10: {
+                        System.out.print("ID del cliente: ");
+                        int id = leerId(scanner);
+                        Cliente cliente = servicio.buscarClientePorId(id);
+                        if (cliente == null) System.out.println("Cliente no encontrado.");
+                        else cliente.mostrarDatos();
+                        pausar(scanner);
+                        break;
+                    }
+                    case 11:
                     case 1: {
                         System.out.println("\n--- REGISTRO DE CLIENTE Y/O MASCOTA ---");
-                        String dni;
-                        do {
-                            System.out.print("DNI del cliente (obligatoriamente 8 dígitos numéricos): ");
-                            dni = scanner.nextLine().trim();
-                            if (!Cliente.esDniValido(dni)) {
-                                System.out.println("[ERROR] El DNI debe tener exactamente 8 dígitos numéricos.");
-                            }
-                        } while (!Cliente.esDniValido(dni));
-
                         Cliente clienteActual = null;
-
-                        if (!Cliente.existeDni(listaClientes, dni)) {
-                            System.out.println("Procediendo a registrar cliente nuevo...");
-                            
-                            String nombre;
-                            do {
-                                System.out.print("Nombre completo: ");
-                                nombre = scanner.nextLine().trim();
-                                if (!Cliente.esNombreValido(nombre)) {
-                                    System.out.println("[ERROR] El nombre debe contener letras y puede incluir espacios o apóstrofos.");
-                                }
-                            } while (!Cliente.esNombreValido(nombre));
-
-                            String telefono;
-                            do {
-                                System.out.print("Teléfono (9 dígitos): ");
-                                telefono = scanner.nextLine().trim();
-                                if (!Cliente.esTelefonoValido(telefono)) {
-                                    System.out.println("[ERROR] El teléfono debe tener exactamente 9 dígitos numéricos.");
-                                }
-                            } while (!Cliente.esTelefonoValido(telefono));
-
-                            String email;
-                            do {
-                                System.out.print("Email (Ej: nombre@dominio.com): ");
-                                email = scanner.nextLine().trim();
-                                if (!Cliente.esEmailValido(email)) {
-                                    System.out.println("[ERROR] Ingresa un correo válido (Ej: nombre@dominio.com).");
-                                }
-                            } while (!Cliente.esEmailValido(email));
-
-                            String direccion;
-                            do {
-                                System.out.print("Dirección: ");
-                                direccion = scanner.nextLine().trim();
-                                if (!Cliente.esDireccionValida(direccion)) {
-                                    System.out.println("[ERROR] La dirección no puede estar vacía.");
-                                }
-                            } while (!Cliente.esDireccionValida(direccion));
-                            
-                            String fecha;
-                            do {
-                                System.out.print("Fecha de registro (dd/MM/aaaa, Ej: 30/08/2026): ");
-                                fecha = scanner.nextLine().trim();
-                                if (!Cliente.esFechaRegistroValida(fecha)) {
-                                    System.out.println("[ERROR] Ingresa una fecha real en formato dd/MM/aaaa.");
-                                }
-                            } while (!Cliente.esFechaRegistroValida(fecha));
-
-                            clienteActual = new Cliente(nombre, telefono, email, direccion, dni, fecha);
-                            listaClientes.add(clienteActual);
-                            System.out.println("¡Cliente registrado con éxito! (ID asignado: " + clienteActual.getIdCliente() + ")\n");
-                        } else {
-                            for (Cliente c : listaClientes) {
-                                if (c.getDni().equalsIgnoreCase(dni)) {
-                                    clienteActual = c;
-                                    break;
-                                }
+                        if (opcion == 11) {
+                            System.out.print("ID del cliente propietario: ");
+                            clienteActual = servicio.buscarClientePorId(leerId(scanner));
+                            if (clienteActual == null) {
+                                System.out.println("[ERROR] No existe el cliente propietario. Registro rechazado.");
+                                pausar(scanner);
+                                break;
                             }
-                            System.out.println("\n[Cliente encontrado en el sistema]");
-                            clienteActual.mostrarDatos(true);
-                        }
+                        } else {
+                            String dni;
+                            do {
+                                System.out.print("DNI del cliente (obligatoriamente 8 dígitos numéricos): ");
+                                dni = scanner.nextLine().trim();
+                                if (!Cliente.esDniValido(dni)) {
+                                    System.out.println("[ERROR] El DNI debe tener exactamente 8 dígitos numéricos.");
+                                }
+                            } while (!Cliente.esDniValido(dni));
 
+                            if (!Cliente.existeDni(listaClientes, dni)) {
+                                System.out.println("Procediendo a registrar cliente nuevo...");
+                            
+                                String nombre;
+                                do {
+                                    System.out.print("Nombre completo: ");
+                                    nombre = scanner.nextLine().trim();
+                                    if (!Cliente.esNombreValido(nombre)) {
+                                        System.out.println("[ERROR] El nombre debe contener letras y puede incluir espacios o apóstrofos.");
+                                    }
+                                } while (!Cliente.esNombreValido(nombre));
+
+                                String telefono;
+                                do {
+                                    System.out.print("Teléfono (9 dígitos): ");
+                                    telefono = scanner.nextLine().trim();
+                                    if (!Cliente.esTelefonoValido(telefono)) {
+                                        System.out.println("[ERROR] El teléfono debe tener exactamente 9 dígitos numéricos.");
+                                    }
+                                } while (!Cliente.esTelefonoValido(telefono));
+
+                                String email;
+                                do {
+                                    System.out.print("Email (Ej: nombre@dominio.com): ");
+                                    email = scanner.nextLine().trim();
+                                    if (!Cliente.esEmailValido(email)) {
+                                        System.out.println("[ERROR] Ingresa un correo válido (Ej: nombre@dominio.com).");
+                                    }
+                                } while (!Cliente.esEmailValido(email));
+
+                                String direccion;
+                                do {
+                                    System.out.print("Dirección: ");
+                                    direccion = scanner.nextLine().trim();
+                                    if (!Cliente.esDireccionValida(direccion)) {
+                                        System.out.println("[ERROR] La dirección no puede estar vacía.");
+                                    }
+                                } while (!Cliente.esDireccionValida(direccion));
+
+                                String fecha;
+                                do {
+                                    System.out.print("Fecha de registro (dd/MM/aaaa, Ej: 30/08/2026): ");
+                                    fecha = scanner.nextLine().trim();
+                                    if (!Cliente.esFechaRegistroValida(fecha)) {
+                                        System.out.println("[ERROR] Ingresa una fecha real en formato dd/MM/aaaa.");
+                                    }
+                                } while (!Cliente.esFechaRegistroValida(fecha));
+
+                                clienteActual = new Cliente(nombre, telefono, email, direccion, dni, fecha);
+                                servicio.registrarCliente(clienteActual);
+                                listaClientes.add(clienteActual);
+                                System.out.println("¡Cliente registrado con éxito! (ID asignado: " + clienteActual.getIdCliente() + ")\n");
+                            } else {
+                                for (Cliente c : listaClientes) {
+                                    if (c.getDni().equalsIgnoreCase(dni)) {
+                                        clienteActual = c;
+                                        break;
+                                    }
+                                }
+                                System.out.println("\n[Cliente encontrado en el sistema]");
+                                clienteActual.mostrarDatos(true);
+                            }
+
+                            System.out.print("¿Deseas registrar una mascota para este cliente? (S/N): ");
+                            if (!scanner.nextLine().trim().equalsIgnoreCase("S")) {
+                                pausar(scanner);
+                                break;
+                            }
+                        }
                         System.out.println("\n--- Registrando mascota para el cliente ---");
                         String nombreMascota;
                         do {
@@ -126,7 +173,11 @@ public class Main {
                         } while (!Mascota.esNombreValido(nombreMascota));
 
                         System.out.print("Especie (perro, gato, conejo, etc.): ");
-                        String especie = scanner.nextLine();
+                        String especie = scanner.nextLine().trim();
+                        while (especie.isEmpty()) {
+                            System.out.print("[ERROR] La especie es obligatoria. Especie: ");
+                            especie = scanner.nextLine().trim();
+                        }
                         System.out.print("Raza: ");
                         String raza = scanner.nextLine();
                         
@@ -149,7 +200,7 @@ public class Main {
                             String pesoTexto = scanner.nextLine();
                             try {
                                 peso = Double.parseDouble(pesoTexto);
-                                pesoValido = peso > 0;
+                                pesoValido = Double.isFinite(peso) && peso > 0;
                                 if (!pesoValido) {
                                     System.out.println("[ERROR] El peso debe ser un número mayor que 0.");
                                 }
@@ -164,6 +215,7 @@ public class Main {
 
                         Mascota nuevaMascota = new Mascota(clienteActual.getIdCliente(), nombreMascota, especie, raza,
                                 fechaNacimiento, sexo, peso, esterilizado);
+                        servicio.registrarMascota(nuevaMascota);
                         listaMascotas.add(nuevaMascota);
 
                         System.out.println("¡Mascota registrada con éxito! (ID asignado: " + nuevaMascota.getIdMascota() + ")\n");
@@ -422,13 +474,14 @@ public class Main {
                                             temperatura,
                                             observaciones,
                                             proximaCita);
-                                    listaConsultas.add(nuevaConsulta);
+
 
                                     Mascota mascotaAtendida = Mascota.buscarPorId(listaMascotas, citaGestion.getIdMascota());
                                     if (mascotaAtendida != null) {
-                                        mascotaAtendida.registrarControlPeso(pesoConsulta, citaGestion.getFechaHora());
+                                        servicio.registrarPeso(mascotaAtendida, pesoConsulta, citaGestion.getFechaHora());
                                     }
 
+                                    listaConsultas.add(nuevaConsulta);
                                     citaGestion.completar();
 
                                     System.out.println("¡Cita completada y consulta registrada! (ID consulta: "
@@ -648,7 +701,7 @@ public class Main {
                         break;
 
                     default:
-                        System.out.println("Opción inválida. Elige un número entre 0 y 8.\n");
+                        System.out.println("Opción inválida. Elige un número entre 0 y 11.\n");
                         pausar(scanner);
                 }
 
@@ -656,6 +709,12 @@ public class Main {
                 System.out.println("\n[ERROR] Debes ingresar un número válido, no letras.\n");
                 scanner.nextLine(); 
                 opcion = -1; 
+                pausar(scanner);
+            } catch (IOException e) {
+                System.out.println("[ERROR CSV] No se guardó la operación: " + e.getMessage());
+                pausar(scanner);
+            } catch (IllegalArgumentException e) {
+                System.out.println("[ERROR] " + e.getMessage());
                 pausar(scanner);
             } catch (Exception e) {
                 System.out.println("\n[ERROR INESPERADO]: " + e.getMessage() + "\n");
@@ -665,6 +724,18 @@ public class Main {
         } while (opcion != 0);
 
         scanner.close();
+    }
+
+    private static int leerId(Scanner scanner) {
+        String texto = scanner.nextLine().trim();
+        try {
+            if (!texto.matches("[0-9]+")) throw new NumberFormatException();
+            int id = Integer.parseInt(texto);
+            if (id <= 0) throw new NumberFormatException();
+            return id;
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Ingresa un ID numérico positivo dentro del rango permitido.");
+        }
     }
 
     private static void pausar(Scanner scanner) {

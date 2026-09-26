@@ -23,6 +23,9 @@ public class Mascota {
             throw new IllegalArgumentException("El nombre de la mascota no puede estar vacío y no debe contener números.");
         }
 
+        if (contadorId == Integer.MAX_VALUE) {
+            throw new IllegalStateException("Se agotaron los identificadores disponibles.");
+        }
         this.idMascota = contadorId++;
         this.idCliente = idCliente;
         this.nombre = nombre;
@@ -36,6 +39,23 @@ public class Mascota {
         this.fechasHistorialPeso.add("Registro inicial");
         this.esterilizado = esterilizado;
     }
+
+    /** Recupera el identificador original y adelanta la secuencia de nuevos registros. */
+    public Mascota(int id, int idCliente, String nombre, String especie, String raza, String fechaNacimiento, String sexo, double pesoInicial, boolean esterilizado) {
+        this(idCliente, nombre, especie, raza, fechaNacimiento, sexo, pesoInicial, esterilizado);
+        if (id <= 0 || id == Integer.MAX_VALUE) {
+            throw new IllegalArgumentException("ID fuera del rango permitido.");
+        }
+        this.idMascota = id;
+        contadorId = Math.max(contadorId, id + 1);
+    }
+
+    public String getNombre() { return nombre; }
+    public String getEspecie() { return especie; }
+    public String getRaza() { return raza; }
+    public String getFechaNacimiento() { return fechaNacimiento; }
+    public String getSexo() { return sexo; }
+    public boolean getEsterilizado() { return esterilizado; }
 
     // --- Validaciones ---
     public static boolean esNombreValido(String nombre) {

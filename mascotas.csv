@@ -1,0 +1,2 @@
+"idMascota","idCliente","nombre","especie","raza","fechaNacimiento","sexo","esterilizado","historialPeso","fechasHistorialPeso"
+"1","1","PERLA","PERRO","MESTIZO","14/02/2018","H","false","""20.0""","""Registro inicial"""

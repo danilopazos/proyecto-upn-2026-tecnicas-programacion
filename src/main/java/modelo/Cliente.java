@@ -38,6 +38,9 @@ public class Cliente {
             throw new IllegalArgumentException("Ingresa una fecha real en formato dd/MM/aaaa.");
         }
 
+        if (contadorId == Integer.MAX_VALUE) {
+            throw new IllegalStateException("Se agotaron los identificadores disponibles.");
+        }
         this.idCliente = contadorId++; // Asigna el número actual y luego suma 1 para el siguiente
         this.nombreCompleto = nombreCompleto;
         this.telefono = telefono;
@@ -46,6 +49,22 @@ public class Cliente {
         this.dni = dni;
         this.fechaRegistro = fechaRegistro;
     }
+
+    /** Recupera el identificador original y adelanta la secuencia de nuevos registros. */
+    public Cliente(int id, String nombreCompleto, String telefono, String email, String direccion, String dni, String fechaRegistro) {
+        this(nombreCompleto, telefono, email, direccion, dni, fechaRegistro);
+        if (id <= 0 || id == Integer.MAX_VALUE) {
+            throw new IllegalArgumentException("ID fuera del rango permitido.");
+        }
+        this.idCliente = id;
+        contadorId = Math.max(contadorId, id + 1);
+    }
+
+    public String getNombreCompleto() { return nombreCompleto; }
+    public String getTelefono() { return telefono; }
+    public String getEmail() { return email; }
+    public String getDireccion() { return direccion; }
+    public String getFechaRegistro() { return fechaRegistro; }
 
     // --- Validaciones ---
     /**
