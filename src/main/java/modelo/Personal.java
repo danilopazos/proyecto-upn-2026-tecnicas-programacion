@@ -31,10 +31,7 @@ public class Personal {
         this.rol = rol;
     }
 
-    /**
-     * Constructor privado usado exclusivamente para reconstruir un empleado ya existente
-     * a partir de los datos leídos de un archivo.
-     */
+    // Reconstruye empleado ya existente
     private Personal(int idEmpleado, String nombre, String horarioAtencion, String rol) {
         this.idEmpleado = idEmpleado;
         this.nombre = nombre;
@@ -42,11 +39,7 @@ public class Personal {
         this.rol = rol;
     }
 
-    /**
-     * Reconstruye un Personal a partir de datos leídos de un archivo. Lanza IllegalArgumentException
-     * si algún dato es inválido, para que la capa de persistencia descarte la línea sin detener la
-     * carga del resto. Uso exclusivo de la capa de persistencia (persistencia.PersonalRepositorio).
-     */
+    // Valida y reconstruye desde archivo
     public static Personal reconstruirDesdeArchivo(int idEmpleado, String nombre, String horarioAtencion, String rol) {
         if (idEmpleado <= 0) {
             throw new IllegalArgumentException("El ID del empleado debe ser un número mayor que 0.");

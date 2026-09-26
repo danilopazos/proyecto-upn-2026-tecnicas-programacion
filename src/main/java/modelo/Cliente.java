@@ -47,13 +47,7 @@ public class Cliente {
         this.fechaRegistro = fechaRegistro;
     }
 
-    /**
-     * Constructor privado usado exclusivamente para reconstruir un cliente ya
-     * existente (con un ID ya asignado previamente) a partir de los datos
-     * leídos de un archivo. No valida (la validación se hace en
-     * {@link #reconstruirDesdeArchivo}) y no cambia el contador global salvo
-     * que se le indique explícitamente.
-     */
+    // Reconstruye cliente ya existente
     private Cliente(int idCliente, String nombreCompleto, String telefono, String email,
             String direccion, String dni, String fechaRegistro) {
         this.idCliente = idCliente;
@@ -65,13 +59,7 @@ public class Cliente {
         this.fechaRegistro = fechaRegistro;
     }
 
-    /**
-     * Reconstruye un Cliente a partir de datos leídos de un archivo (por eso recibe el ID ya asignado).
-     * Válida el formato de cada campo igual que el constructor normal; si algo es inválido lanza
-     * IllegalArgumentException para que la capa de persistencia pueda descartar esa línea del archivo
-     * sin detener la carga del resto de registros.
-     * Uso exclusivo de la capa de persistencia (persistencia.ClienteRepositorio).
-     */
+    // Valida y reconstruye desde archivo
     public static Cliente reconstruirDesdeArchivo(int idCliente, String nombreCompleto, String telefono,
             String email, String direccion, String dni, String fechaRegistro) {
         if (idCliente <= 0) {
@@ -98,7 +86,7 @@ public class Cliente {
 
         Cliente c = new Cliente(idCliente, nombreCompleto, telefono, email, direccion, dni, fechaRegistro);
         if (idCliente >= contadorId) {
-            contadorId = idCliente + 1; // Evita que un nuevo registro colisione con uno cargado desde archivo
+            contadorId = idCliente + 1; // Evita IDs duplicados
         }
         return c;
     }

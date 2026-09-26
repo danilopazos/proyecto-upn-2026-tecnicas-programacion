@@ -39,10 +39,7 @@ public class Facturacion {
         this.metodoPago = metodoPago;
     }
 
-    /**
-     * Constructor privado usado exclusivamente para reconstruir una factura ya existente
-     * a partir de los datos leídos de un archivo.
-     */
+    // Reconstruye factura ya existente
     private Facturacion(int idFactura, int idCliente, int idConsulta, String fecha, double monto, String metodoPago) {
         this.idFactura = idFactura;
         this.idCliente = idCliente;
@@ -52,11 +49,7 @@ public class Facturacion {
         this.metodoPago = metodoPago;
     }
 
-    /**
-     * Reconstruye una Facturacion a partir de datos leídos de un archivo. Lanza IllegalArgumentException
-     * si algún dato es inválido, para que la capa de persistencia descarte la línea sin detener la
-     * carga del resto. Uso exclusivo de la capa de persistencia (persistencia.FacturacionRepositorio).
-     */
+    // Valida y reconstruye desde archivo
     public static Facturacion reconstruirDesdeArchivo(int idFactura, int idCliente, int idConsulta, String fecha,
             double monto, String metodoPago) {
         if (idFactura <= 0) {

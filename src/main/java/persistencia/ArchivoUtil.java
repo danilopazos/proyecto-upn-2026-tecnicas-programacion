@@ -10,8 +10,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
- //* Formato de archivo: texto plano tipo CSV, usando "|" como separador de columnas.
-
+// Funciones de apoyo para leer/escribir CSV
 public final class ArchivoUtil {
 
     public static final String SEPARADOR = "\\|";       // Para split() (regex)
@@ -21,10 +20,10 @@ public final class ArchivoUtil {
     private static final String MARCADOR_SALTO_LINEA = "&#10;";
 
     private ArchivoUtil() {
-        // Clase de utilidades: no se instancia.
+        // No se instancia
     }
 
-    /** Reemplaza cualquier "|" o salto de línea del campo por un marcador seguro. */
+    // Escapa "|" y saltos de línea
     public static String escaparCampo(String valor) {
         if (valor == null) {
             return "";
@@ -34,7 +33,7 @@ public final class ArchivoUtil {
                 .replace("\n", MARCADOR_SALTO_LINEA);
     }
 
-    /** Revierte el escape hecho por escaparCampo, devolviendo el texto original. */
+    // Revierte el escape anterior
     public static String desescaparCampo(String valor) {
         if (valor == null) {
             return "";
@@ -42,7 +41,7 @@ public final class ArchivoUtil {
         return valor.replace(MARCADOR_SEPARADOR, "|").replace(MARCADOR_SALTO_LINEA, "\n");
     }
 
-    /** Construye una línea de archivo a partir de columnas ya escapadas. */
+    // Une columnas en una línea
     public static String construirLinea(String... campos) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < campos.length; i++) {
@@ -54,8 +53,7 @@ public final class ArchivoUtil {
         return sb.toString();
     }
 
-     //* ArchivoDatosException en vez de dejar que el programa se caiga.
- 
+    // Escribe todas las líneas al archivo
     public static void escribirArchivo(String ruta, List<String> lineas) throws ArchivoDatosException {
         Path path = Paths.get(ruta);
         try {
@@ -75,14 +73,12 @@ public final class ArchivoUtil {
         }
     }
 
-   
-    // * Lee todas las líneas no vacías del archivo indicado. Si el archivo no existe todavía
-
+    // Lee las líneas del archivo
     public static List<String> leerArchivo(String ruta) throws ArchivoDatosException {
         Path path = Paths.get(ruta);
         List<String> lineas = new ArrayList<>();
         if (!Files.exists(path)) {
-            return lineas; // Sin archivo aún: no hay nada que cargar, no es un error.
+            return lineas; // Aún no existe: normal
         }
         try (BufferedReader lector = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
             String linea;
@@ -99,7 +95,7 @@ public final class ArchivoUtil {
         return lineas;
     }
 
-    /** Separa una línea en columnas y desescapa cada una. */
+    // Separa la línea en columnas
     public static String[] partirLinea(String linea, int columnasEsperadas) {
         String[] partes = linea.split(SEPARADOR, -1);
         String[] resultado = new String[partes.length];

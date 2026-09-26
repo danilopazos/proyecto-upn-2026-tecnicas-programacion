@@ -37,10 +37,7 @@ public class Mascota {
         this.esterilizado = esterilizado;
     }
 
-    /**
-     * Constructor privado usado exclusivamente para reconstruir una mascota ya existente
-     * (con historial de peso ya cargado) a partir de los datos leídos de un archivo.
-     */
+    // Reconstruye mascota ya existente
     private Mascota(int idMascota, int idCliente, String nombre, String especie, String raza,
             String fechaNacimiento, String sexo, boolean esterilizado,
             ArrayList<Double> historialPeso, ArrayList<String> fechasHistorialPeso) {
@@ -56,12 +53,7 @@ public class Mascota {
         this.fechasHistorialPeso = fechasHistorialPeso;
     }
 
-    /**
-     * Reconstruye una Mascota a partir de datos leídos de un archivo.
-     * Lanza IllegalArgumentException si algún dato es inválido, para que la capa de
-     * persistencia pueda descartar esa línea sin detener la carga del resto.
-     * Uso exclusivo de la capa de persistencia (persistencia.MascotaRepositorio).
-     */
+    // Valida y reconstruye desde archivo
     public static Mascota reconstruirDesdeArchivo(int idMascota, int idCliente, String nombre, String especie,
             String raza, String fechaNacimiento, String sexo, boolean esterilizado,
             ArrayList<Double> historialPeso, ArrayList<String> fechasHistorialPeso) {

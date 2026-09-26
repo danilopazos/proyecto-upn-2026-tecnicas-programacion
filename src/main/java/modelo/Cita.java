@@ -33,10 +33,7 @@ public class Cita {
         this.estado = ESTADO_PENDIENTE; // Toda cita nueva nace pendiente
     }
 
-    /**
-     * Constructor privado usado exclusivamente para reconstruir una cita ya existente
-     * (con estado ya definido) a partir de los datos leídos de un archivo.
-     */
+    // Reconstruye cita ya existente
     private Cita(int idCita, int idMascota, String fechaHora, String veterinario, String tipo, String estado) {
         this.idCita = idCita;
         this.idMascota = idMascota;
@@ -46,11 +43,7 @@ public class Cita {
         this.estado = estado;
     }
 
-    /**
-     * Reconstruye una Cita a partir de datos leídos de un archivo. Lanza IllegalArgumentException
-     * si algún dato es inválido, para que la capa de persistencia descarte la línea sin detener
-     * la carga del resto. Uso exclusivo de la capa de persistencia (persistencia.CitaRepositorio).
-     */
+    // Valida y reconstruye desde archivo
     public static Cita reconstruirDesdeArchivo(int idCita, int idMascota, String fechaHora, String veterinario,
             String tipo, String estado) {
         if (idCita <= 0) {

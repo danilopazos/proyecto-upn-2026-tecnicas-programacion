@@ -8,16 +8,11 @@ import modelo.Facturacion;
 import modelo.Mascota;
 import modelo.Personal;
 import persistencia.ArchivoDatosException;
-import persistencia.CitaRepositorio;
-import persistencia.ClienteRepositorio;
-import persistencia.ConsultaRepositorio;
-import persistencia.FacturacionRepositorio;
-import persistencia.MascotaRepositorio;
-import persistencia.PersonalRepositorio;
+import persistencia.RepositorioArchivos;
 
 public class Main {
 
-    // Rutas de los archivos de datos del sistema (carpeta "data" dentro del proyecto).
+    // Rutas de los archivos de datos
     private static final String RUTA_CLIENTES = "data/clientes.csv";
     private static final String RUTA_MASCOTAS = "data/mascotas.csv";
     private static final String RUTA_CITAS = "data/citas.csv";
@@ -35,15 +30,15 @@ public class Main {
         ArrayList<Facturacion> listaFacturas = new ArrayList<>();
         int opcion = -1;
 
-        // --- Carga automática de datos guardados en ejecuciones anteriores ---
+        // Carga automática de datos guardados
         System.out.println("Cargando datos guardados...");
         try {
-            listaClientes = ClienteRepositorio.cargar(RUTA_CLIENTES);
-            listaMascotas = MascotaRepositorio.cargar(RUTA_MASCOTAS);
-            listaPersonal = PersonalRepositorio.cargar(RUTA_PERSONAL);
-            listaCitas = CitaRepositorio.cargar(RUTA_CITAS);
-            listaConsultas = ConsultaRepositorio.cargar(RUTA_CONSULTAS);
-            listaFacturas = FacturacionRepositorio.cargar(RUTA_FACTURAS);
+            listaClientes = RepositorioArchivos.cargarClientes(RUTA_CLIENTES);
+            listaMascotas = RepositorioArchivos.cargarMascotas(RUTA_MASCOTAS);
+            listaPersonal = RepositorioArchivos.cargarPersonal(RUTA_PERSONAL);
+            listaCitas = RepositorioArchivos.cargarCitas(RUTA_CITAS);
+            listaConsultas = RepositorioArchivos.cargarConsultas(RUTA_CONSULTAS);
+            listaFacturas = RepositorioArchivos.cargarFacturas(RUTA_FACTURAS);
             System.out.println("Carga finalizada.\n");
         } catch (ArchivoDatosException e) {
             System.out.println("[ERROR AL CARGAR DATOS] " + e.getMessage());
@@ -712,24 +707,19 @@ public class Main {
         scanner.close();
     }
 
-    /**
-     * Guarda las seis colecciones del sistema en sus respectivos archivos CSV (carpeta data/).
-     * Si alguno falla (permisos, disco lleno, ruta inválida, etc.) se informa el error concreto
-     * de ESE archivo y se continúa intentando guardar los demás, en vez de perder todo el avance
-     * por un solo archivo con problemas.
-     */
+    // Guarda las 6 listas en CSV
     private static void guardarTodo(ArrayList<Cliente> listaClientes, ArrayList<Mascota> listaMascotas,
             ArrayList<Cita> listaCitas, ArrayList<Consulta> listaConsultas, ArrayList<Personal> listaPersonal,
             ArrayList<Facturacion> listaFacturas) {
         int guardadosOk = 0;
         int guardadosError = 0;
 
-        guardadosOk += intentarGuardar("clientes", () -> ClienteRepositorio.guardar(listaClientes, RUTA_CLIENTES));
-        guardadosOk += intentarGuardar("mascotas", () -> MascotaRepositorio.guardar(listaMascotas, RUTA_MASCOTAS));
-        guardadosOk += intentarGuardar("personal", () -> PersonalRepositorio.guardar(listaPersonal, RUTA_PERSONAL));
-        guardadosOk += intentarGuardar("citas", () -> CitaRepositorio.guardar(listaCitas, RUTA_CITAS));
-        guardadosOk += intentarGuardar("consultas", () -> ConsultaRepositorio.guardar(listaConsultas, RUTA_CONSULTAS));
-        guardadosOk += intentarGuardar("facturas", () -> FacturacionRepositorio.guardar(listaFacturas, RUTA_FACTURAS));
+        guardadosOk += intentarGuardar("clientes", () -> RepositorioArchivos.guardarClientes(listaClientes, RUTA_CLIENTES));
+        guardadosOk += intentarGuardar("mascotas", () -> RepositorioArchivos.guardarMascotas(listaMascotas, RUTA_MASCOTAS));
+        guardadosOk += intentarGuardar("personal", () -> RepositorioArchivos.guardarPersonal(listaPersonal, RUTA_PERSONAL));
+        guardadosOk += intentarGuardar("citas", () -> RepositorioArchivos.guardarCitas(listaCitas, RUTA_CITAS));
+        guardadosOk += intentarGuardar("consultas", () -> RepositorioArchivos.guardarConsultas(listaConsultas, RUTA_CONSULTAS));
+        guardadosOk += intentarGuardar("facturas", () -> RepositorioArchivos.guardarFacturas(listaFacturas, RUTA_FACTURAS));
 
         guardadosError = 6 - guardadosOk;
         if (guardadosError == 0) {
@@ -739,7 +729,7 @@ public class Main {
         }
     }
 
-    /** Interfaz funcional interna para poder reutilizar el mismo bloque try/catch en guardarTodo(). */
+    // Acción de guardado reutilizable
     private interface AccionGuardado {
         void ejecutar() throws ArchivoDatosException;
     }

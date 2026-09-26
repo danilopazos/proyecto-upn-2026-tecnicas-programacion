@@ -38,10 +38,7 @@ public class Consulta {
         this.proximaCitaSugerida = proximaCitaSugerida;
     }
 
-    /**
-     * Constructor privado usado exclusivamente para reconstruir una consulta ya existente
-     * a partir de los datos leídos de un archivo.
-     */
+    // Reconstruye consulta ya existente
     private Consulta(int idConsulta, int idMascota, int idCita, String fechaHora, String motivoConsulta,
             String veterinario, String diagnostico, String tratamientoIndicado, double peso, double temperatura,
             String observaciones, String proximaCitaSugerida) {
@@ -59,11 +56,7 @@ public class Consulta {
         this.proximaCitaSugerida = proximaCitaSugerida;
     }
 
-    /**
-     * Reconstruye una Consulta a partir de datos leídos de un archivo. Lanza IllegalArgumentException
-     * si algún dato es inválido, para que la capa de persistencia descarte la línea sin detener la
-     * carga del resto. Uso exclusivo de la capa de persistencia (persistencia.ConsultaRepositorio).
-     */
+    // Valida y reconstruye desde archivo
     public static Consulta reconstruirDesdeArchivo(int idConsulta, int idMascota, int idCita, String fechaHora,
             String motivoConsulta, String veterinario, String diagnostico, String tratamientoIndicado,
             double peso, double temperatura, String observaciones, String proximaCitaSugerida) {
