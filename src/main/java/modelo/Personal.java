@@ -30,6 +30,34 @@ public class Personal {
         this.horarioAtencion = horarioAtencion;
         this.rol = rol;
     }
+
+    // Reconstruye empleado ya existente
+    private Personal(int idEmpleado, String nombre, String horarioAtencion, String rol) {
+        this.idEmpleado = idEmpleado;
+        this.nombre = nombre;
+        this.horarioAtencion = horarioAtencion;
+        this.rol = rol;
+    }
+
+    // Valida y reconstruye desde archivo
+    public static Personal reconstruirDesdeArchivo(int idEmpleado, String nombre, String horarioAtencion, String rol) {
+        if (idEmpleado <= 0) {
+            throw new IllegalArgumentException("El ID del empleado debe ser un número mayor que 0.");
+        }
+        if (!esNombreValido(nombre)) {
+            throw new IllegalArgumentException("Nombre de empleado inválido en el archivo.");
+        }
+        if (!esRolValido(rol)) {
+            throw new IllegalArgumentException("Rol de empleado inválido en el archivo: " + rol);
+        }
+
+        Personal p = new Personal(idEmpleado, nombre, horarioAtencion, rol);
+        if (idEmpleado >= contadorId) {
+            contadorId = idEmpleado + 1;
+        }
+        return p;
+    }
+
     // --- Validaciones ---
 
     /**

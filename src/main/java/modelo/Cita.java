@@ -33,6 +33,44 @@ public class Cita {
         this.estado = ESTADO_PENDIENTE; // Toda cita nueva nace pendiente
     }
 
+    // Reconstruye cita ya existente
+    private Cita(int idCita, int idMascota, String fechaHora, String veterinario, String tipo, String estado) {
+        this.idCita = idCita;
+        this.idMascota = idMascota;
+        this.fechaHora = fechaHora;
+        this.veterinario = veterinario;
+        this.tipo = tipo;
+        this.estado = estado;
+    }
+
+    // Valida y reconstruye desde archivo
+    public static Cita reconstruirDesdeArchivo(int idCita, int idMascota, String fechaHora, String veterinario,
+            String tipo, String estado) {
+        if (idCita <= 0) {
+            throw new IllegalArgumentException("El ID de la cita debe ser un número mayor que 0.");
+        }
+        if (fechaHora == null || fechaHora.trim().isEmpty()) {
+            throw new IllegalArgumentException("Fecha y hora de cita inválida en el archivo.");
+        }
+        if (veterinario == null || veterinario.trim().isEmpty()) {
+            throw new IllegalArgumentException("Veterinario de cita inválido en el archivo.");
+        }
+        if (!esEstadoValido(estado)) {
+            throw new IllegalArgumentException("Estado de cita inválido en el archivo: " + estado);
+        }
+
+        Cita c = new Cita(idCita, idMascota, fechaHora, veterinario, tipo, estado);
+        if (idCita >= contadorId) {
+            contadorId = idCita + 1;
+        }
+        return c;
+    }
+
+    public static boolean esEstadoValido(String estado) {
+        return ESTADO_PENDIENTE.equals(estado) || ESTADO_CONFIRMADA.equals(estado)
+                || ESTADO_CANCELADA.equals(estado) || ESTADO_COMPLETADA.equals(estado);
+    }
+
     // --- Transiciones de estado ---
 
     public void confirmar() {

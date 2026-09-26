@@ -38,6 +38,43 @@ public class Consulta {
         this.proximaCitaSugerida = proximaCitaSugerida;
     }
 
+    // Reconstruye consulta ya existente
+    private Consulta(int idConsulta, int idMascota, int idCita, String fechaHora, String motivoConsulta,
+            String veterinario, String diagnostico, String tratamientoIndicado, double peso, double temperatura,
+            String observaciones, String proximaCitaSugerida) {
+        this.idConsulta = idConsulta;
+        this.idMascota = idMascota;
+        this.idCita = idCita;
+        this.fechaHora = fechaHora;
+        this.motivoConsulta = motivoConsulta;
+        this.veterinario = veterinario;
+        this.diagnostico = diagnostico;
+        this.tratamientoIndicado = tratamientoIndicado;
+        this.peso = peso;
+        this.temperatura = temperatura;
+        this.observaciones = observaciones;
+        this.proximaCitaSugerida = proximaCitaSugerida;
+    }
+
+    // Valida y reconstruye desde archivo
+    public static Consulta reconstruirDesdeArchivo(int idConsulta, int idMascota, int idCita, String fechaHora,
+            String motivoConsulta, String veterinario, String diagnostico, String tratamientoIndicado,
+            double peso, double temperatura, String observaciones, String proximaCitaSugerida) {
+        if (idConsulta <= 0) {
+            throw new IllegalArgumentException("El ID de la consulta debe ser un número mayor que 0.");
+        }
+        if (diagnostico == null || diagnostico.trim().isEmpty()) {
+            throw new IllegalArgumentException("Diagnóstico inválido en el archivo.");
+        }
+
+        Consulta c = new Consulta(idConsulta, idMascota, idCita, fechaHora, motivoConsulta, veterinario,
+                diagnostico, tratamientoIndicado, peso, temperatura, observaciones, proximaCitaSugerida);
+        if (idConsulta >= contadorId) {
+            contadorId = idConsulta + 1;
+        }
+        return c;
+    }
+
     // --- Getters ---
     public int getIdConsulta() {
         return idConsulta;
@@ -47,8 +84,44 @@ public class Consulta {
         return idMascota;
     }
 
+    public int getIdCita() {
+        return idCita;
+    }
+
+    public String getFechaHora() {
+        return fechaHora;
+    }
+
+    public String getMotivoConsulta() {
+        return motivoConsulta;
+    }
+
+    public String getVeterinario() {
+        return veterinario;
+    }
+
+    public String getDiagnostico() {
+        return diagnostico;
+    }
+
+    public String getTratamientoIndicado() {
+        return tratamientoIndicado;
+    }
+
     public double getPeso() {
         return peso;
+    }
+
+    public double getTemperatura() {
+        return temperatura;
+    }
+
+    public String getObservaciones() {
+        return observaciones;
+    }
+
+    public String getProximaCitaSugerida() {
+        return proximaCitaSugerida;
     }
 
     public void mostrarDatos() {

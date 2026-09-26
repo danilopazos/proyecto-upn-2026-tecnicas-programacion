@@ -39,6 +39,39 @@ public class Facturacion {
         this.metodoPago = metodoPago;
     }
 
+    // Reconstruye factura ya existente
+    private Facturacion(int idFactura, int idCliente, int idConsulta, String fecha, double monto, String metodoPago) {
+        this.idFactura = idFactura;
+        this.idCliente = idCliente;
+        this.idConsulta = idConsulta;
+        this.fecha = fecha;
+        this.monto = monto;
+        this.metodoPago = metodoPago;
+    }
+
+    // Valida y reconstruye desde archivo
+    public static Facturacion reconstruirDesdeArchivo(int idFactura, int idCliente, int idConsulta, String fecha,
+            double monto, String metodoPago) {
+        if (idFactura <= 0) {
+            throw new IllegalArgumentException("El ID de la factura debe ser un número mayor que 0.");
+        }
+        if (fecha == null || fecha.trim().isEmpty()) {
+            throw new IllegalArgumentException("Fecha de factura inválida en el archivo.");
+        }
+        if (!esMontoValido(monto)) {
+            throw new IllegalArgumentException("Monto de factura inválido en el archivo.");
+        }
+        if (!esMetodoPagoValido(metodoPago)) {
+            throw new IllegalArgumentException("Método de pago inválido en el archivo: " + metodoPago);
+        }
+
+        Facturacion f = new Facturacion(idFactura, idCliente, idConsulta, fecha, monto, metodoPago);
+        if (idFactura >= contadorId) {
+            contadorId = idFactura + 1;
+        }
+        return f;
+    }
+
     // --- Validaciones ---
     /**
      * Un monto es válido si es un número mayor que 0.
