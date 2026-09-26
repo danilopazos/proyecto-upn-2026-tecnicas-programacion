@@ -1,6 +1,7 @@
 package modelo;
 
 import java.util.ArrayList;
+import util.Validaciones;
 
 public class Mascota {
 
@@ -19,7 +20,7 @@ public class Mascota {
 
     public Mascota(int idCliente, String nombre, String especie, String raza,
             String fechaNacimiento, String sexo, double pesoInicial, boolean esterilizado) {
-        if (!esNombreValido(nombre)) {
+        if (!Validaciones.esNombreValido(nombre)) {
             throw new IllegalArgumentException("El nombre de la mascota no puede estar vacío y no debe contener números.");
         }
 
@@ -60,7 +61,7 @@ public class Mascota {
         if (idMascota <= 0) {
             throw new IllegalArgumentException("El ID de la mascota debe ser un número mayor que 0.");
         }
-        if (!esNombreValido(nombre)) {
+        if (!Validaciones.esNombreValido(nombre)) {
             throw new IllegalArgumentException("Nombre de mascota inválido en el archivo.");
         }
         if (historialPeso == null || historialPeso.isEmpty()) {
@@ -76,15 +77,6 @@ public class Mascota {
             contadorId = idMascota + 1;
         }
         return m;
-    }
-
-    // --- Validaciones ---
-    public static boolean esNombreValido(String nombre) {
-        return nombre != null && nombre.trim().matches("[\\p{L}\\p{M}]+(?:[ '’-][\\p{L}\\p{M}]+)*");
-    }
-
-    public static boolean esIdNumerico(String texto) {
-        return texto != null && texto.matches("\\d+");
     }
 
     // --- Peso histórico ---
@@ -119,6 +111,17 @@ public class Mascota {
             }
         }
         return null;
+    }
+
+    /** Devuelve las mascotas que pertenecen a un cliente. */
+    public static ArrayList<Mascota> buscarPorCliente(ArrayList<Mascota> listaMascotas, int idCliente) {
+        ArrayList<Mascota> resultado = new ArrayList<>();
+        for (Mascota m : listaMascotas) {
+            if (m.getIdCliente() == idCliente) {
+                resultado.add(m);
+            }
+        }
+        return resultado;
     }
 
     // --- Getters ---

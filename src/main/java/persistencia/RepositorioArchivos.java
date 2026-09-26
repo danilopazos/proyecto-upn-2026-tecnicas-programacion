@@ -128,7 +128,7 @@ public final class RepositorioArchivos {
     public static void guardarPersonal(ArrayList<Personal> lista, String ruta) throws ArchivoDatosException {
         List<String> lineas = new ArrayList<>();
         for (Personal p : lista) {
-            lineas.add(ArchivoUtil.construirLinea(String.valueOf(p.getIdEmpleado()), p.getNombre(),
+            lineas.add(ArchivoUtil.construirLinea(String.valueOf(p.getIdEmpleado()), p.getDni(), p.getNombre(),
                     p.getHorarioAtencion(), p.getRol()));
         }
         ArchivoUtil.escribirArchivo(ruta, lineas);
@@ -140,11 +140,12 @@ public final class RepositorioArchivos {
         int ignoradas = 0;
         for (int i = 0; i < lineas.size(); i++) {
             try {
-                String[] c = ArchivoUtil.partirLinea(lineas.get(i), 4);
-                if (c.length != 4) {
-                    throw new IllegalArgumentException("se esperaban 4 columnas y se encontraron " + c.length);
+                // Formato: id|dni|nombre|horario|rol
+                String[] c = ArchivoUtil.partirLinea(lineas.get(i), 5);
+                if (c.length != 5) {
+                    throw new IllegalArgumentException("se esperaban 5 columnas (id|dni|nombre|horario|rol) y se encontraron " + c.length);
                 }
-                lista.add(Personal.reconstruirDesdeArchivo(Integer.parseInt(c[0].trim()), c[1], c[2], c[3]));
+                lista.add(Personal.reconstruirDesdeArchivo(Integer.parseInt(c[0].trim()), c[1].trim(), c[2], c[3], c[4]));
             } catch (NumberFormatException e) {
                 ignoradas++;
                 System.out.println("[AVISO] personal.csv, línea " + (i + 1) + " ignorada: el ID no es un número válido.");
