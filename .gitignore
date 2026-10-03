@@ -2,3 +2,4 @@
 /nbproject/
 /.vscode/
 bin
+/conexion.properties
