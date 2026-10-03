@@ -59,6 +59,11 @@ public final class Validaciones {
         return LocalDate.now().format(FORMATO_FECHA);
     }
 
+    /** Fecha y hora actuales del sistema en formato dd/MM/aaaa HH:mm. */
+    public static String fechaHoraActual() {
+        return java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+    }
+
     /** Fecha real dd/MM/aaaa que no es anterior al día de hoy. */
     public static boolean esFechaNoPasada(String fecha) {
         return esFechaValida(fecha) && !LocalDate.parse(fecha, FORMATO_FECHA).isBefore(LocalDate.now());

@@ -1,3 +1,4 @@
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Scanner;
 import modelo.Cita;
@@ -6,7 +7,7 @@ import modelo.Consulta;
 import modelo.Facturacion;
 import modelo.Mascota;
 import modelo.Personal;
-import persistencia.ConexionBD;
+import persistencia.RepositorioMySQL;
 import util.EntradaDatos;
 import util.Validaciones;
 
@@ -26,7 +27,10 @@ public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         entrada = new EntradaDatos(scanner);
-        ConexionBD.probarConexion();
+        if (!cargarTodo()) {
+            scanner.close();
+            return;
+        }
 
         int opcion;
         do {
@@ -107,6 +111,9 @@ public class Main {
             String fecha = Validaciones.fechaActual(); // Fecha de registro automática (fecha del sistema)
 
             cliente = new Cliente(nombre, telefono, email, direccion, dni, fecha);
+            if (!RepositorioMySQL.insertarCliente(cliente)) {
+                return;
+            }
             listaClientes.add(cliente);
             System.out.println("¡Cliente registrado con éxito! (ID asignado: " + cliente.getIdCliente() + ")\n");
         } else {
@@ -127,6 +134,9 @@ public class Main {
 
         Mascota nuevaMascota = new Mascota(cliente.getIdCliente(), nombreMascota, especie, raza,
                 fechaNacimiento, sexo, peso, esterilizado);
+        if (!RepositorioMySQL.insertarMascota(nuevaMascota)) {
+            return;
+        }
         listaMascotas.add(nuevaMascota);
         System.out.println("¡Mascota registrada con éxito! (ID asignado: " + nuevaMascota.getIdMascota() + ")");
     }
@@ -207,6 +217,9 @@ public class Main {
         String tipo = tipos[entrada.leerOpcion("Tipo de cita:", tipos) - 1];
 
         Cita nuevaCita = new Cita(idMascota, fecha + " " + hora, veterinario.getNombre(), tipo);
+        if (!RepositorioMySQL.insertarCita(nuevaCita, veterinario.getIdEmpleado())) {
+            return;
+        }
         listaCitas.add(nuevaCita);
         System.out.println("¡Cita registrada con éxito! (ID asignado: " + nuevaCita.getIdCita()
                 + ", veterinario: " + veterinario.getNombre() + ", estado: " + nuevaCita.getEstado() + ")");
@@ -253,8 +266,10 @@ public class Main {
         if (accion == 1) {
             completarCita(cita);
         } else {
-            cita.cancelar();
-            System.out.println("Cita cancelada.");
+            if (RepositorioMySQL.actualizarEstadoCita(cita.getIdCita(), Cita.ESTADO_CANCELADA)) {
+                cita.cancelar();
+                System.out.println("Cita cancelada.");
+            }
         }
     }
 
@@ -270,14 +285,19 @@ public class Main {
                 t -> t.equalsIgnoreCase("NO") || Validaciones.esFechaNoPasada(t),
                 "Ingresa una fecha real dd/MM/aaaa que no sea anterior a hoy, o escribe NO.");
 
-        Consulta nuevaConsulta = new Consulta(cita.getIdMascota(), cita.getIdCita(), cita.getFechaHora(),
+        String ahora = Validaciones.fechaHoraActual(); // fecha y hora del sistema
+        Consulta nuevaConsulta = new Consulta(cita.getIdMascota(), cita.getIdCita(), ahora,
                 motivo, cita.getVeterinario(), diagnostico, tratamiento, peso, temperatura,
                 observaciones, proximaCita.toUpperCase().equals("NO") ? "NO" : proximaCita);
+        // Guarda consulta + peso + estado de la cita en MySQL; si falla, no se cambia nada
+        if (!RepositorioMySQL.registrarConsultaYCompletarCita(nuevaConsulta)) {
+            return;
+        }
         listaConsultas.add(nuevaConsulta);
 
         Mascota mascota = Mascota.buscarPorId(listaMascotas, cita.getIdMascota());
         if (mascota != null) {
-            mascota.registrarControlPeso(peso, cita.getFechaHora());
+            mascota.registrarControlPeso(peso, ahora);
         }
         cita.completar();
         System.out.println("¡Cita completada y consulta registrada! (ID consulta: " + nuevaConsulta.getIdConsulta() + ")");
@@ -300,6 +320,9 @@ public class Main {
         String rol = roles[entrada.leerOpcion("Rol:", roles) - 1];
 
         Personal nuevoPersonal = new Personal(dni, nombre, horario, rol);
+        if (!RepositorioMySQL.insertarPersonal(nuevoPersonal)) {
+            return;
+        }
         listaPersonal.add(nuevoPersonal);
         System.out.println("¡Empleado registrado con éxito! (ID asignado: " + nuevoPersonal.getIdEmpleado() + ")");
     }
@@ -359,6 +382,9 @@ public class Main {
         String metodoPago = metodos[entrada.leerOpcion("Método de pago:", metodos) - 1];
 
         Facturacion nuevaFactura = new Facturacion(cliente.getIdCliente(), idConsulta, fecha, monto, metodoPago);
+        if (!RepositorioMySQL.insertarFactura(nuevaFactura)) {
+            return;
+        }
         listaFacturas.add(nuevaFactura);
         System.out.println("¡Factura registrada con éxito! (ID asignado: " + nuevaFactura.getIdFactura() + ")");
     }
@@ -449,5 +475,27 @@ public class Main {
     private static String nombreMascota(int idMascota) {
         Mascota m = Mascota.buscarPorId(listaMascotas, idMascota);
         return m != null ? m.getNombre() : "-";
+    }
+
+    // =====================================================================
+    // Carga inicial desde MySQL
+    // =====================================================================
+    private static boolean cargarTodo() {
+        System.out.println("Conectando con MySQL y cargando datos...");
+        try {
+            listaClientes = RepositorioMySQL.cargarClientes();
+            listaMascotas = RepositorioMySQL.cargarMascotas();
+            listaPersonal = RepositorioMySQL.cargarPersonal();
+            listaCitas = RepositorioMySQL.cargarCitas();
+            listaConsultas = RepositorioMySQL.cargarConsultas();
+            listaFacturas = RepositorioMySQL.cargarFacturas();
+            System.out.println("Carga finalizada.");
+            return true;
+        } catch (SQLException e) {
+            System.out.println("[ERROR MySQL] No se pudo conectar o leer la base de datos: " + e.getMessage());
+            System.out.println("Verifica que el servicio MySQL80 esté iniciado, que la base 'veterinaria' y sus tablas existan "
+                    + "y que la clave en ConexionBD.java sea correcta.");
+            return false;
+        }
     }
 }
