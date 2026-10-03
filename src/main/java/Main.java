@@ -6,20 +6,11 @@ import modelo.Consulta;
 import modelo.Facturacion;
 import modelo.Mascota;
 import modelo.Personal;
-import persistencia.ArchivoDatosException;
-import persistencia.RepositorioArchivos;
+import persistencia.ConexionBD;
 import util.EntradaDatos;
 import util.Validaciones;
 
 public class Main {
-
-    // Rutas de los archivos de datos
-    private static final String RUTA_CLIENTES = "data/clientes.csv";
-    private static final String RUTA_MASCOTAS = "data/mascotas.csv";
-    private static final String RUTA_CITAS = "data/citas.csv";
-    private static final String RUTA_CONSULTAS = "data/consultas.csv";
-    private static final String RUTA_PERSONAL = "data/personal.csv";
-    private static final String RUTA_FACTURAS = "data/facturas.csv";
 
     // Listas del sistema
     private static ArrayList<Cliente> listaClientes = new ArrayList<>();
@@ -35,7 +26,7 @@ public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         entrada = new EntradaDatos(scanner);
-        cargarTodo();
+        ConexionBD.probarConexion();
 
         int opcion;
         do {
@@ -67,15 +58,11 @@ public class Main {
                     case 8:
                         verFacturasCliente();
                         break;
-                    case 9:
-                        System.out.println("\n--- GUARDAR DATOS EN ARCHIVO ---");
-                        guardarTodo();
-                        break;
                     case 0:
                         System.out.println("Saliendo del sistema...");
                         break;
                     default:
-                        System.out.println("[ERROR] Opción inválida. Elige un número entre 0 y 9.");
+                        System.out.println("[ERROR] Opción inválida. Elige un número entre 0 y 8.");
                 }
             } catch (Exception e) {
                 System.out.println("\n[ERROR INESPERADO]: " + e.getMessage());
@@ -100,7 +87,6 @@ public class Main {
         System.out.println("6 - Buscar personal");
         System.out.println("7 - Registrar una factura");
         System.out.println("8 - Ver facturas de un cliente");
-        System.out.println("9 - Guardar datos registrados");
         System.out.println("0 - Salir");
     }
 
@@ -118,7 +104,7 @@ public class Main {
             String telefono = entrada.leerTelefono("Celular (9 dígitos): ");
             String email = entrada.leerEmail("Email (Ej: nombre@dominio.com): ");
             String direccion = entrada.leerTextoObligatorio("Dirección: ", "La dirección");
-            String fecha = entrada.leerFecha("Fecha de registro (dd/MM/aaaa, Ej: 30/08/2026): ");
+            String fecha = Validaciones.fechaActual(); // Fecha de registro automática (fecha del sistema)
 
             cliente = new Cliente(nombre, telefono, email, direccion, dni, fecha);
             listaClientes.add(cliente);
@@ -196,7 +182,7 @@ public class Main {
         int idMascota = entrada.leerIdDeLista("\nID de la mascota: ", idsDeMascotas(mascotas),
                 "Elige el ID de una de las mascotas mostradas.");
 
-        String fecha = entrada.leerFecha("Fecha de la cita (dd/MM/aaaa, Ej: 15/09/2026): ");
+        String fecha = entrada.leerFechaNoPasada("Fecha de la cita (dd/MM/aaaa, no anterior a hoy " + Validaciones.fechaActual() + "): ");
         String hora = entrada.leerHora("Hora de la cita (Ej: 10:00 am): ");
 
         ArrayList<Personal> veterinarios = Personal.buscarPorRol(listaPersonal, Personal.ROL_VETERINARIO);
@@ -281,8 +267,8 @@ public class Main {
         double temperatura = entrada.leerDecimalPositivo("Temperatura (°C): ", "La temperatura", "38.5");
         String observaciones = entrada.leerTexto("Observaciones: ");
         String proximaCita = entrada.leerValidado("Próxima cita sugerida (Ej: 15/10/2026, o 'NO'): ",
-                t -> t.equalsIgnoreCase("NO") || Validaciones.esFechaValida(t),
-                "Ingresa una fecha real en formato dd/MM/aaaa o escribe NO.");
+                t -> t.equalsIgnoreCase("NO") || Validaciones.esFechaNoPasada(t),
+                "Ingresa una fecha real dd/MM/aaaa que no sea anterior a hoy, o escribe NO.");
 
         Consulta nuevaConsulta = new Consulta(cita.getIdMascota(), cita.getIdCita(), cita.getFechaHora(),
                 motivo, cita.getVeterinario(), diagnostico, tratamiento, peso, temperatura,
@@ -365,7 +351,7 @@ public class Main {
 
         int idConsulta = entrada.leerIdDeLista("\nID de la consulta a facturar: ", pendientes,
                 "Elige el ID de una consulta PENDIENTE DE FACTURAR.");
-        String fecha = entrada.leerFecha("Fecha de la factura (dd/MM/aaaa, Ej: 15/09/2026): ");
+        String fecha = Validaciones.fechaActual(); // Fecha de la factura automática (fecha del sistema)
         double monto = entrada.leerDecimalPositivo("Monto (S/): ", "El monto", "80.00");
 
         String[] metodos = {Facturacion.PAGO_EFECTIVO, Facturacion.PAGO_TARJETA,
@@ -463,58 +449,5 @@ public class Main {
     private static String nombreMascota(int idMascota) {
         Mascota m = Mascota.buscarPorId(listaMascotas, idMascota);
         return m != null ? m.getNombre() : "-";
-    }
-
-    // =====================================================================
-    // Persistencia
-    // =====================================================================
-
-    private static void cargarTodo() {
-        System.out.println("Cargando datos guardados...");
-        try {
-            listaClientes = RepositorioArchivos.cargarClientes(RUTA_CLIENTES);
-            listaMascotas = RepositorioArchivos.cargarMascotas(RUTA_MASCOTAS);
-            listaPersonal = RepositorioArchivos.cargarPersonal(RUTA_PERSONAL);
-            listaCitas = RepositorioArchivos.cargarCitas(RUTA_CITAS);
-            listaConsultas = RepositorioArchivos.cargarConsultas(RUTA_CONSULTAS);
-            listaFacturas = RepositorioArchivos.cargarFacturas(RUTA_FACTURAS);
-            System.out.println("Carga finalizada.");
-        } catch (ArchivoDatosException e) {
-            System.out.println("[ERROR AL CARGAR DATOS] " + e.getMessage());
-            System.out.println("El sistema continuará con las listas vacías; los datos guardados no se perdieron,\n"
-                    + "revisa el mensaje de error anterior antes de volver a guardar.");
-        }
-    }
-
-    // Guarda las 6 listas en CSV
-    private static void guardarTodo() {
-        int guardadosOk = 0;
-        guardadosOk += intentarGuardar("clientes", () -> RepositorioArchivos.guardarClientes(listaClientes, RUTA_CLIENTES));
-        guardadosOk += intentarGuardar("mascotas", () -> RepositorioArchivos.guardarMascotas(listaMascotas, RUTA_MASCOTAS));
-        guardadosOk += intentarGuardar("personal", () -> RepositorioArchivos.guardarPersonal(listaPersonal, RUTA_PERSONAL));
-        guardadosOk += intentarGuardar("citas", () -> RepositorioArchivos.guardarCitas(listaCitas, RUTA_CITAS));
-        guardadosOk += intentarGuardar("consultas", () -> RepositorioArchivos.guardarConsultas(listaConsultas, RUTA_CONSULTAS));
-        guardadosOk += intentarGuardar("facturas", () -> RepositorioArchivos.guardarFacturas(listaFacturas, RUTA_FACTURAS));
-
-        if (guardadosOk == 6) {
-            System.out.println("¡Todos los datos se guardaron correctamente en la carpeta 'data'!");
-        } else {
-            System.out.println(guardadosOk + " de 6 archivos se guardaron correctamente. Revisa los errores anteriores.");
-        }
-    }
-
-    // Acción de guardado reutilizable
-    private interface AccionGuardado {
-        void ejecutar() throws ArchivoDatosException;
-    }
-
-    private static int intentarGuardar(String nombreArchivo, AccionGuardado accion) {
-        try {
-            accion.ejecutar();
-            return 1;
-        } catch (ArchivoDatosException e) {
-            System.out.println("[ERROR] No se pudo guardar " + nombreArchivo + ": " + e.getMessage());
-            return 0;
-        }
     }
 }

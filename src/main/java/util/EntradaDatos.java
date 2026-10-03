@@ -4,11 +4,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.function.Predicate;
 
-/**
- * Lectura de datos por consola con control de errores.
- * Cada método repite la pregunta hasta que el usuario ingresa un valor válido,
- * así Main no necesita escribir sus propios bucles do-while ni try-catch.
- */
+ //Lectura de datos por consola con control de errores.
 public class EntradaDatos {
 
     private final Scanner scanner;
@@ -64,6 +60,12 @@ public class EntradaDatos {
     public String leerFecha(String mensaje) {
         return leerValidado(mensaje, Validaciones::esFechaValida,
                 "Ingresa una fecha real en formato dd/MM/aaaa.");
+    }
+
+    /** Pide una fecha real (dd/MM/aaaa) que no sea anterior al día de hoy. */
+    public String leerFechaNoPasada(String mensaje) {
+        return leerValidado(mensaje, Validaciones::esFechaNoPasada,
+                "Ingresa una fecha real (dd/MM/aaaa) que no sea anterior a hoy (" + Validaciones.fechaActual() + ").");
     }
 
     public String leerHora(String mensaje) {

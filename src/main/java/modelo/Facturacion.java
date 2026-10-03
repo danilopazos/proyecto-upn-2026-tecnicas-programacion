@@ -14,7 +14,7 @@ public class Facturacion {
     // Variable estática para llevar la cuenta global de facturas creadas
     private static int contadorId = 1;
 
-    private int idFactura;      // Autogenerado: siempre numérico, nunca se ingresa por teclado
+    private int idFactura;      // Autogenerado: 
     private int idCliente;      // Relación con el cliente facturado
     private int idConsulta;     // Relación con la consulta que originó el cobro
     private String fecha;
