@@ -1,4 +1,5 @@
 /target/
 /nbproject/
 /.vscode/
+bin
 /conexion.properties
