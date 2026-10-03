@@ -1,6 +1,7 @@
 package modelo;
 
 import java.util.ArrayList;
+import util.Validaciones;
 
 public class Facturacion {
 
@@ -21,10 +22,10 @@ public class Facturacion {
     private String metodoPago;  // Efectivo, Tarjeta, Yape/Plin, Transferencia
 
     public Facturacion(int idCliente, int idConsulta, String fecha, double monto, String metodoPago) {
-        if (fecha == null || fecha.trim().isEmpty()) {
-            throw new IllegalArgumentException("La fecha de la factura no puede estar vacía.");
+        if (!Validaciones.esFechaValida(fecha)) {
+            throw new IllegalArgumentException("La fecha de la factura debe ser una fecha real en formato dd/MM/aaaa.");
         }
-        if (!esMontoValido(monto)) {
+        if (!Validaciones.esNumeroPositivo(monto)) {
             throw new IllegalArgumentException("El monto debe ser un número mayor que 0.");
         }
         if (!esMetodoPagoValido(metodoPago)) {
@@ -58,7 +59,7 @@ public class Facturacion {
         if (fecha == null || fecha.trim().isEmpty()) {
             throw new IllegalArgumentException("Fecha de factura inválida en el archivo.");
         }
-        if (!esMontoValido(monto)) {
+        if (!Validaciones.esNumeroPositivo(monto)) {
             throw new IllegalArgumentException("Monto de factura inválido en el archivo.");
         }
         if (!esMetodoPagoValido(metodoPago)) {
@@ -74,13 +75,6 @@ public class Facturacion {
 
     // --- Validaciones ---
     /**
-     * Un monto es válido si es un número mayor que 0.
-     */
-    public static boolean esMontoValido(double monto) {
-        return monto > 0;
-    }
-
-    /**
      * Un método de pago es válido si coincide (sin distinguir mayúsculas/minúsculas) con uno de los métodos permitidos.
      */
     public static boolean esMetodoPagoValido(String metodoPago) {
@@ -88,13 +82,6 @@ public class Facturacion {
                 || metodoPago.equalsIgnoreCase(PAGO_TARJETA)
                 || metodoPago.equalsIgnoreCase(PAGO_YAPE_PLIN)
                 || metodoPago.equalsIgnoreCase(PAGO_TRANSFERENCIA));
-    }
-
-    /**
-     * Verifica que un texto ingresado (ej. el ID de una factura) contenga solo dígitos numéricos.
-     */
-    public static boolean esIdNumerico(String texto) {
-        return texto != null && texto.matches("\\d+");
     }
 
     // --- Búsqueda ---
@@ -118,6 +105,16 @@ public class Facturacion {
             }
         }
         return resultado;
+    }
+
+    /** Devuelve la factura emitida para una consulta, o null si aún no se ha facturado. */
+    public static Facturacion buscarPorConsulta(ArrayList<Facturacion> listaFacturas, int idConsulta) {
+        for (Facturacion f : listaFacturas) {
+            if (f.getIdConsulta() == idConsulta) {
+                return f;
+            }
+        }
+        return null;
     }
 
     // --- Getters ---

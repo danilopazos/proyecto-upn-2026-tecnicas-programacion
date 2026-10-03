@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class Cita {
     public static final String ESTADO_PENDIENTE = "Pendiente";
-    public static final String ESTADO_CONFIRMADA = "Confirmada";
+    public static final String ESTADO_CONFIRMADA = "Confirmada"; // Solo se conserva para leer citas antiguas
     public static final String ESTADO_CANCELADA = "Cancelada";
     public static final String ESTADO_COMPLETADA = "Completada";
 
@@ -13,7 +13,7 @@ public class Cita {
     private int idCita;
     private int idMascota;        // Relación con la mascota atendida
     private String fechaHora;
-    private String veterinario;   // Veterinario asignado (por ahora, solo el nombre)
+    private String veterinario;   // Nombre del veterinario (se elige por su DNI al registrar la cita)
     private String tipo;          // Consulta, Control, Cirugía, Vacuna
     private String estado;        // Pendiente, Confirmada, Cancelada, Completada
 
@@ -73,13 +73,6 @@ public class Cita {
 
     // --- Transiciones de estado ---
 
-    public void confirmar() {
-        if (!estado.equals(ESTADO_PENDIENTE)) {
-            throw new IllegalStateException("Solo una cita pendiente puede confirmarse (estado actual: " + estado + ").");
-        }
-        estado = ESTADO_CONFIRMADA;
-    }
-
     public void cancelar() {
         if (estado.equals(ESTADO_COMPLETADA)) {
             throw new IllegalStateException("Una cita completada no puede cancelarse.");
@@ -103,6 +96,25 @@ public class Cita {
             }
         }
         return null;
+    }
+
+    /** Devuelve las citas de un grupo de mascotas (ej. las mascotas de un mismo dueño). */
+    public static ArrayList<Cita> buscarPorMascotas(ArrayList<Cita> listaCitas, ArrayList<Mascota> mascotas) {
+        ArrayList<Cita> resultado = new ArrayList<>();
+        for (Cita c : listaCitas) {
+            for (Mascota m : mascotas) {
+                if (c.getIdMascota() == m.getIdMascota()) {
+                    resultado.add(c);
+                    break;
+                }
+            }
+        }
+        return resultado;
+    }
+
+    /** Una cita cancelada o completada ya no puede modificarse. */
+    public boolean estaCerrada() {
+        return estado.equals(ESTADO_CANCELADA) || estado.equals(ESTADO_COMPLETADA);
     }
 
     // --- Getters ---
