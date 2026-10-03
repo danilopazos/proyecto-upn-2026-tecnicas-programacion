@@ -5,10 +5,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
 
-/**
- * Reglas de validación centralizadas. Todas las clases del sistema (modelo y
- * consola) las importan desde aquí en lugar de repetirlas.
- */
+
+ // Reglas de validación centralizadas. Todas las clases del sistema
 public final class Validaciones {
 
     private static final DateTimeFormatter FORMATO_FECHA =
@@ -54,6 +52,16 @@ public final class Validaciones {
         } catch (DateTimeParseException e) {
             return false;
         }
+    }
+
+    /** Fecha actual del sistema en formato dd/MM/aaaa. */
+    public static String fechaActual() {
+        return LocalDate.now().format(FORMATO_FECHA);
+    }
+
+    /** Fecha real dd/MM/aaaa que no es anterior al día de hoy. */
+    public static boolean esFechaNoPasada(String fecha) {
+        return esFechaValida(fecha) && !LocalDate.parse(fecha, FORMATO_FECHA).isBefore(LocalDate.now());
     }
 
     /** Hora en formato de 12 horas: hh:mm am / hh:mm pm (Ej: 10:00 am, 3:30 pm). */
