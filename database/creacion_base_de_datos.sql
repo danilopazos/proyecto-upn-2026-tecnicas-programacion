@@ -8,7 +8,7 @@ CREATE TABLE clientes (
     nombre         VARCHAR(100) NOT NULL,
     dni            CHAR(8)      NOT NULL UNIQUE,
     telefono       CHAR(9)      NOT NULL,
-    email          VARCHAR(100) NOT NULL,
+    email          VARCHAR(100),
     direccion      VARCHAR(150) NOT NULL,
     fecha_registro datetime default current_timestamp()
 );
