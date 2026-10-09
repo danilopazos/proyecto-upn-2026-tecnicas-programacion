@@ -64,7 +64,7 @@ public class Cliente {
         if (!Validaciones.esTelefonoValido(telefono)) {
             throw new IllegalArgumentException("El teléfono debe tener exactamente 9 dígitos numéricos.");
         }
-        if (!Validaciones.esEmailValido(email)) {
+        if (email != null && !Validaciones.esEmailValido(email)) {
             throw new IllegalArgumentException("Ingresa un correo válido (Ej: nombre@dominio.com).");
         }
         if (!Validaciones.esTextoNoVacio(direccion)) {
@@ -133,7 +133,7 @@ public class Cliente {
         System.out.println("ID Cliente: " + idCliente);
         System.out.println("Nombre: " + nombre);
         System.out.println("Teléfono: " + telefono);
-        System.out.println("Email: " + email);
+        System.out.println("Email: " + (email == null ? "No registrado" : email));
         System.out.println("Dirección: " + direccion);
         System.out.println("DNI: " + dni);
         System.out.println("Fecha de Registro: " + fechaRegistro);

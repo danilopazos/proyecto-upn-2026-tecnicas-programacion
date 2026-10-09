@@ -57,6 +57,12 @@ public class EntradaDatos {
                 "Ingresa un correo válido (Ej: nombre@dominio.com).");
     }
 
+    public String leerEmailOpcional(String mensaje) {
+        String email = leerValidado(mensaje, t -> t.isEmpty() || Validaciones.esEmailValido(t),
+                "Ingresa un correo válido (Ej: nombre@dominio.com) o déjalo vacío.");
+        return email.isEmpty() ? null : email;
+    }
+
     public String leerFecha(String mensaje) {
         return leerValidado(mensaje, Validaciones::esFechaValida,
                 "Ingresa una fecha real en formato dd/MM/aaaa.");

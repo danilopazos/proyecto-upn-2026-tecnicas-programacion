@@ -106,7 +106,7 @@ public class Main {
             System.out.println("Procediendo a registrar cliente nuevo...");
             String nombre = entrada.leerNombre("Nombre completo: ");
             String telefono = entrada.leerTelefono("Celular (9 dígitos): ");
-            String email = entrada.leerEmail("Email (Ej: nombre@dominio.com): ");
+            String email = entrada.leerEmailOpcional("Email (opcional, Ej: nombre@dominio.com): ");
             String direccion = entrada.leerTextoObligatorio("Dirección: ", "La dirección");
             String fecha = Validaciones.fechaActual(); // Fecha de registro automática (fecha del sistema)
 
@@ -202,7 +202,7 @@ public class Main {
         }
         System.out.println("\n--- Veterinarios disponibles ---");
         for (Personal p : veterinarios) {
-            p.mostrarDatos(true);
+            System.out.println("DNI: " + p.getDni() + " | Nombre: " + p.getNombre() + " | Turno: " + p.getHorarioAtencion());
         }
         Personal veterinario;
         do {
