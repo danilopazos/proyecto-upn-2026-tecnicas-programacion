@@ -1,0 +1,165 @@
+package modelo;
+
+import java.util.ArrayList;
+import util.Validaciones;
+
+public class Facturacion {
+
+    // Métodos de pago permitidos (valores fijos)
+    public static final String PAGO_EFECTIVO = "Efectivo";
+    public static final String PAGO_TARJETA = "Tarjeta";
+    public static final String PAGO_YAPE_PLIN = "Yape/Plin";
+    public static final String PAGO_TRANSFERENCIA = "Transferencia";
+
+    // Variable estática para llevar la cuenta global de facturas creadas
+    private static int contadorId = 1;
+
+    private int idFactura;      // Autogenerado: 
+    private int idCliente;      // Relación con el cliente facturado
+    private int idConsulta;     // Relación con la consulta que originó el cobro
+    private String fecha;
+    private double monto;
+    private String metodoPago;  // Efectivo, Tarjeta, Yape/Plin, Transferencia
+
+    public Facturacion(int idCliente, int idConsulta, String fecha, double monto, String metodoPago) {
+        if (!Validaciones.esFechaValida(fecha)) {
+            throw new IllegalArgumentException("La fecha de la factura debe ser una fecha real en formato dd/MM/aaaa.");
+        }
+        if (!Validaciones.esNumeroPositivo(monto)) {
+            throw new IllegalArgumentException("El monto debe ser un número mayor que 0.");
+        }
+        if (!esMetodoPagoValido(metodoPago)) {
+            throw new IllegalArgumentException("El método de pago debe ser Efectivo, Tarjeta, Yape/Plin o Transferencia.");
+        }
+
+        this.idFactura = contadorId++;
+        this.idCliente = idCliente;
+        this.idConsulta = idConsulta;
+        this.fecha = fecha;
+        this.monto = monto;
+        this.metodoPago = metodoPago;
+    }
+
+    // Reconstruye factura ya existente
+    private Facturacion(int idFactura, int idCliente, int idConsulta, String fecha, double monto, String metodoPago) {
+        this.idFactura = idFactura;
+        this.idCliente = idCliente;
+        this.idConsulta = idConsulta;
+        this.fecha = fecha;
+        this.monto = monto;
+        this.metodoPago = metodoPago;
+    }
+
+    // Valida y reconstruye desde archivo
+    public static Facturacion reconstruirDesdeArchivo(int idFactura, int idCliente, int idConsulta, String fecha,
+            double monto, String metodoPago) {
+        if (idFactura <= 0) {
+            throw new IllegalArgumentException("El ID de la factura debe ser un número mayor que 0.");
+        }
+        if (fecha == null || fecha.trim().isEmpty()) {
+            throw new IllegalArgumentException("Fecha de factura inválida en el archivo.");
+        }
+        if (!Validaciones.esNumeroPositivo(monto)) {
+            throw new IllegalArgumentException("Monto de factura inválido en el archivo.");
+        }
+        if (!esMetodoPagoValido(metodoPago)) {
+            throw new IllegalArgumentException("Método de pago inválido en el archivo: " + metodoPago);
+        }
+
+        Facturacion f = new Facturacion(idFactura, idCliente, idConsulta, fecha, monto, metodoPago);
+        if (idFactura >= contadorId) {
+            contadorId = idFactura + 1;
+        }
+        return f;
+    }
+
+    // --- Validaciones ---
+    /**
+     * Un método de pago es válido si coincide (sin distinguir mayúsculas/minúsculas) con uno de los métodos permitidos.
+     */
+    public static boolean esMetodoPagoValido(String metodoPago) {
+        return metodoPago != null && (metodoPago.equalsIgnoreCase(PAGO_EFECTIVO)
+                || metodoPago.equalsIgnoreCase(PAGO_TARJETA)
+                || metodoPago.equalsIgnoreCase(PAGO_YAPE_PLIN)
+                || metodoPago.equalsIgnoreCase(PAGO_TRANSFERENCIA));
+    }
+
+    // --- Búsqueda ---
+    public static Facturacion buscarPorId(ArrayList<Facturacion> listaFacturas, int idFactura) {
+        for (Facturacion f : listaFacturas) {
+            if (f.getIdFactura() == idFactura) {
+                return f;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Devuelve la lista de facturas asociadas a un cliente (ej. para ver su historial de pagos).
+     */
+    public static ArrayList<Facturacion> buscarPorCliente(ArrayList<Facturacion> listaFacturas, int idCliente) {
+        ArrayList<Facturacion> resultado = new ArrayList<>();
+        for (Facturacion f : listaFacturas) {
+            if (f.getIdCliente() == idCliente) {
+                resultado.add(f);
+            }
+        }
+        return resultado;
+    }
+
+    /** Devuelve la factura emitida para una consulta, o null si aún no se ha facturado. */
+    public static Facturacion buscarPorConsulta(ArrayList<Facturacion> listaFacturas, int idConsulta) {
+        for (Facturacion f : listaFacturas) {
+            if (f.getIdConsulta() == idConsulta) {
+                return f;
+            }
+        }
+        return null;
+    }
+
+    // --- Getters ---
+    public int getIdFactura() {
+        return idFactura;
+    }
+
+    public int getIdCliente() {
+        return idCliente;
+    }
+
+    public int getIdConsulta() {
+        return idConsulta;
+    }
+
+    public String getFecha() {
+        return fecha;
+    }
+
+    public double getMonto() {
+        return monto;
+    }
+
+    public String getMetodoPago() {
+        return metodoPago;
+    }
+
+    public void mostrarDatos() {
+        System.out.println("\n--- DATOS DE LA FACTURA ---");
+        System.out.println("ID Factura: " + idFactura);
+        System.out.println("ID Cliente: " + idCliente);
+        System.out.println("ID Consulta: " + idConsulta);
+        System.out.println("Fecha: " + fecha);
+        System.out.println("Monto: S/ " + monto);
+        System.out.println("Método de pago: " + metodoPago);
+        System.out.println("---------------------------\n");
+    }
+
+    // Sobrecarga de mostrarDatos: si resumen es false, muestra el detalle; si es true, muestra una sola línea
+    public void mostrarDatos(boolean resumen) {
+        if (!resumen) {
+            mostrarDatos();
+            return;
+        }
+        System.out.println("Factura #" + idFactura + " | Cliente ID: " + idCliente
+                + " | Consulta ID: " + idConsulta + " | S/ " + monto + " | " + metodoPago);
+    }
+}
